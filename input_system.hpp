@@ -4,12 +4,16 @@
 #include <vector>
 
 namespace input {
+struct Controllable;
+std::vector<Controllable*> controllables;
 
 struct Controllable {
+	Controllable() {
+		controllables.push_back(this);
+	}
 	virtual void handle_user_action(SDL_Event event) = 0;
 };
 
-std::vector<Controllable*> controllables;
 
 void poll() {
 	while (true) {

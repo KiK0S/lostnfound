@@ -13,12 +13,19 @@
 
 namespace render {
 
+struct Drawable;
+std::vector<Drawable*> drawables;
+
 struct Drawable {
+	Drawable() {
+		drawables.push_back(this);
+	}
 	virtual std::vector<float> get_pos() = 0;
 	virtual std::vector<float> get_uv() = 0;
 	virtual std::vector<float> get_model_matrix() = 0;
+	virtual bool show() { return true; }
 	virtual GLuint get_texture() = 0;
-	virtual std::string get_name() = 0; 
+	virtual std::string get_name() = 0;
 };
 
 
@@ -130,15 +137,15 @@ GLuint load_shader(GLenum shader_type) {
 	return glShader;
 }
 
-GLuint create_texture(const int width, const int height, const void *data) {
-    GLuint texture;
+GLuint create_texture(const int width, const int height, const void *data, GLuint filter = GL_LINEAR) {
+		GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
     glBindTexture(GL_TEXTURE_2D, 0);
     return texture;
 }
@@ -154,7 +161,7 @@ GLuint get_texture(std::string path) {
 		res = create_texture(1, 1, data);
 	} else {
 		int width, height, nrChannels;
-		unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+		unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 		if (data == nullptr) {
 			std::cout << stbi_failure_reason() << std::endl;
 		} else {
@@ -221,7 +228,16 @@ void add_to_frame(Drawable* object) {
 	vao_data[object->get_name()] = vao;
 }
 
+
+void init() {
+	for (auto* drawable : drawables) {
+		add_to_frame(drawable);
+	}
+}
+
 void display(Drawable* object) {
+	if (!object->show())
+		return;
 	glUseProgram(program);
 	glBindVertexArray(vao_data[object->get_name()]);
 
@@ -249,6 +265,13 @@ void display(Drawable* object) {
 
 	glDrawArrays(GL_TRIANGLES, 0, object->get_pos().size());
 }
+
+void update() {
+	for (auto* drawable : drawables) {
+		render::display(drawable);
+	}
+}
+
 
 void close_frame() {
   SDL_GL_SwapWindow(_window);

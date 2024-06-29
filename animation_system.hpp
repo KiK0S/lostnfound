@@ -8,13 +8,17 @@
 
 namespace animation {
 
+struct Animated;
+std::vector<Animated*> animateds;
+
 struct Animated {
+	Animated() {
+		animateds.push_back(this);
+	}
 	virtual void update(float dt) = 0;
 	virtual void set_state(std::string state) = 0; 
 	virtual std::string get_state() = 0; 
 };
-
-std::vector<Animated*> animateds;
 
 std::optional<std::chrono::time_point<std::chrono::system_clock>> m_time = {};
 

@@ -3,8 +3,8 @@
 #include "render_system.hpp"
 #include "window_system.hpp"
 #include "file_system.hpp"
-#include "scene.hpp"
 #include "sprite.hpp"
+#include "map.hpp"
 
 #include <optional>
 
@@ -33,6 +33,8 @@ int main() {
 
 	});
 	mario.durations["idle"] = {0.1, 0.2, 0.1};
+	map::Map map(3, 3);
+
 	auto window = window::get_window("lostnfound");
 	#ifdef __EMSCRIPTEN__
 	window::get_canvas_context();
@@ -40,18 +42,15 @@ int main() {
   SDL_SetWindowSize(window, 960, 480);
 	#endif
 	render::init(window);
-	scene::drawables.push_back(&smiley);
-	scene::drawables.push_back(&mario);
-	animation::animateds.push_back(&mario);
 	render::start_frame();
-	scene::init();
+	render::init();
 	game_loop::update = [&](){
 		input::poll();
 		animation::update();
 	};
 	game_loop::render = [&](){
 		render::start_frame();
-		scene::update();
+		render::update();
 		render::close_frame();
 	};
 	game_loop::startLoop();

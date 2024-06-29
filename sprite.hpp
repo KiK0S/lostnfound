@@ -8,9 +8,7 @@
 namespace sprite {
 	struct Sprite : public render::Drawable, input::Controllable {
 
-		Sprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): name(name), l(l), t(t), r(r), b(b), user_callback(std::move(f)) {
-			input::controllables.push_back(this);
-		}
+		Sprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): name(name), l(l), t(t), r(r), b(b), user_callback(std::move(f)), render::Drawable(), input::Controllable() {}
 		Sprite(std::string name, float l, float t, float r, float b): Sprite(name, l, t, r, b, [](SDL_Event, Sprite*) {}) {}
 		std::vector<float> get_pos() {
 			return {
@@ -67,7 +65,7 @@ namespace sprite {
 
 	struct AnimatedSprite : public Sprite, animation::Animated {
 
-		AnimatedSprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): Sprite(name, l, t, r, b, std::move(f)) {}
+		AnimatedSprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): Sprite(name, l, t, r, b, std::move(f)), animation::Animated() {}
 		AnimatedSprite(std::string name, float l, float t, float r, float b): AnimatedSprite(name, l, t, r, b, [](SDL_Event, Sprite*) {}) {}
 		GLuint get_texture() {
 			while (durations[get_state()][current_index] <= time) {
