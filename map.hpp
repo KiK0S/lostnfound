@@ -19,12 +19,12 @@ struct Map : public render::Drawable, input::Controllable {
 	bool visible = false;
 
 	Map(int n, int m): n(n), m(m), render::Drawable(), input::Controllable() {
-		double width = 0.8 / n;
-		double height = 0.8 / m;
+		double width = 10.0 / n;
+		double height = 10.0 / m;
 
-		for (int i = -n/2; i <= n/2; i++) {
+		for (int i = -n/2; i < n/2; i++) {
 			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
-			for (int j = -m/2; j <= m/2; j++) {
+			for (int j = -m/2; j < m/2; j++) {
 				tiles.back().emplace_back(std::make_unique<Tile>("tile", rand() % 3, (n/2 - i) * width, j * height, width, height));
 			}
 		}
@@ -35,13 +35,13 @@ struct Map : public render::Drawable, input::Controllable {
 	}
 	std::vector<float> get_pos() {
 		return {
-			-1.0f, -1.0f, // Vertex 1: top left
-			1.0f, -1.0f, // Vertex 2: top right
-			-1.0f, 1.0f, // Vertex 3: bottom left
+			-0.6f, -0.6f, // Vertex 1: top left
+			0.6f, -0.6f, // Vertex 2: top right
+			-0.6f, 0.6f, // Vertex 3: bottom left
 
-			1.0f, -1.0f, // Vertex 4: top right
-			-1.0f, 1.0f, // Vertex 5: bottom left
-			1.0f, 1.0f  // Vertex 6: bottom right
+			0.6f, -0.6f, // Vertex 4: top right
+			-0.6f, 0.6f, // Vertex 5: bottom left
+			0.6f, 0.6f  // Vertex 6: bottom right
 		};
 	}
 	virtual std::vector<float> get_uv() {
