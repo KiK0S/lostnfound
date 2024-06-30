@@ -2,23 +2,28 @@
 #include <vector>
 #include "player.hpp"
 #include "camera.hpp"
-#include <deque>
+#include "game_loop_system.hpp"
 
 namespace camera {
 
-int history_size = 100;
-std::deque<float> history;
-
-void update() {
-	history.push_back(player::position_x);
-	history.push_back(player::position_y);
-	if (history.size() < history_size) {
-		return;
+struct CameraUpdate : public game_loop::Dynamic {
+	CameraUpdate(): game_loop::Dynamic() {}
+	~CameraUpdate() {}
+	void update() {
+		float diff_x = player::player.position_x - position_x;
+		float diff_y = player::player.position_y - position_y;
+		float d = diff_x * diff_x + diff_y * diff_y;
+		if (d < 0.1)
+			return;
+		float v = 0.05;
+		if (d > 0.4) {
+			v *= 5;
+		}
+		position_x += diff_x * v;
+		position_y += diff_y * v;
 	}
-	position_x = history.front();
-	history.pop_front();
-	position_y = history.front();
-	history.pop_front();
-}
+};
+
+CameraUpdate camera_update;
 
 };

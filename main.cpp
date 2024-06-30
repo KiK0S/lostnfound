@@ -23,12 +23,6 @@ int main() {
 	render::init(window);
 	render::start_frame();
 	render::init();
-	game_loop::update = [&](){
-		input::poll();
-		animation::update();
-		player::update();
-		camera::update();
-	};
 	game_loop::render = [&](){
 		render::start_frame();
 		render::update();

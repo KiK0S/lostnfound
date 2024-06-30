@@ -11,9 +11,21 @@
 
 namespace game_loop {
 
+struct Dynamic;
+
+std::vector<Dynamic*> dynamics;
+
+struct Dynamic {
+    Dynamic() {
+        dynamics.push_back(this);
+    }
+    virtual ~Dynamic() {}
+    virtual void update() = 0;
+};
+
+
 bool isRunning = true;
 
-std::function<void()> update;
 std::function<void()> render;
 
 void Loop() {
@@ -21,7 +33,8 @@ void Loop() {
         return;
     }
 
-    update();
+    for (auto dynamic : dynamics)
+        dynamic->update();
 
     // Pre-render
 		// ??? 

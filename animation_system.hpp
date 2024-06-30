@@ -5,6 +5,7 @@
 #include <optional>	
 #include <GL/gl.h>
 #include "render_system.hpp"
+#include "game_loop_system.hpp"
 
 namespace animation {
 
@@ -23,18 +24,23 @@ struct Animated {
 
 std::optional<std::chrono::time_point<std::chrono::system_clock>> m_time = {};
 
-void update() {
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-	if (m_time == std::nullopt) {
+struct Animation : public game_loop::Dynamic {
+	Animation(): game_loop::Dynamic() {}
+	void update() {
+		std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+		if (m_time == std::nullopt) {
+			m_time = now;
+			return;
+		}
+		float dt = 1.0f * std::chrono::duration_cast<std::chrono::milliseconds>(now - *m_time).count() / 1000.0f;
 		m_time = now;
-		return;
-	}
-	float dt = 1.0f * std::chrono::duration_cast<std::chrono::milliseconds>(now - *m_time).count() / 1000.0f;
-	m_time = now;
 
-	for (auto* animated : animateds) {
-		animated->update(dt);
+		for (auto* animated : animateds) {
+			animated->update(dt);
+		}
 	}
-}
+};
+
+Animation animation;
 
 };
