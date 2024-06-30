@@ -1,3 +1,4 @@
+#define cimg_display 0
 #include "game_loop_system.hpp"
 #include "input_system.hpp"
 #include "render_system.hpp"
@@ -10,7 +11,6 @@
 #include <optional>
 
 int main() {
-	map::Map map(30, 30);
 	sprite::Sprite smiley("smiley", -0.5, -0.5, 0.5, 0.5);
 	player::init();
 
@@ -21,7 +21,7 @@ int main() {
   SDL_SetWindowSize(window, 960, 480);
 	#endif
 	render::init(window);
-	render::start_frame();
+	map::Map map(30, 30);
 	render::init();
 	game_loop::render = [&](){
 		render::start_frame();
