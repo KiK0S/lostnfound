@@ -20,9 +20,11 @@ struct Drawable {
 	Drawable() {
 		drawables.push_back(this);
 	}
+	virtual ~Drawable() {}
 	virtual std::vector<float> get_pos() = 0;
 	virtual std::vector<float> get_uv() = 0;
 	virtual std::vector<float> get_model_matrix() = 0;
+	virtual int get_layer() const = 0;
 	virtual bool show() { return true; }
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() = 0;

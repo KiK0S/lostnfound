@@ -11,6 +11,7 @@ struct Controllable {
 	Controllable() {
 		controllables.push_back(this);
 	}
+	virtual ~Controllable() {}
 	virtual void handle_user_action(SDL_Event event) = 0;
 };
 

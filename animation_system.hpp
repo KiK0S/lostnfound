@@ -15,6 +15,7 @@ struct Animated {
 	Animated() {
 		animateds.push_back(this);
 	}
+	virtual ~Animated() {}
 	virtual void update(float dt) = 0;
 	virtual void set_state(std::string state) = 0; 
 	virtual std::string get_state() = 0; 

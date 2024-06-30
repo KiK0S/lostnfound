@@ -7,8 +7,8 @@ namespace map
 
 struct Tile : public sprite::Sprite {
 	Tile(const std::string& name, int tile_type, double x, double y, double width, double height):
-		sprite::Sprite(name + "_" + std::to_string(tile_type), y, x, y + height, x + width), tile_type(tile_type) {
-		}
+		sprite::Sprite(name + "_" + std::to_string(tile_type), y, x, y + height, x + width), tile_type(tile_type) {}
+	~Tile() {}
 	int tile_type;
 };
 
@@ -29,7 +29,10 @@ struct Map : public render::Drawable, input::Controllable {
 			}
 		}
 	}
-
+	~Map() {}
+	int get_layer() const {
+		return 2;
+	}
 	std::vector<float> get_pos() {
 		return {
 			-1.0f, -1.0f, // Vertex 1: top left
