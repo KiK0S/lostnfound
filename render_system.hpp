@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include "camera.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -52,7 +53,7 @@ uniform mat4 uProjectionMatrix;
 out vec2 vTextureCoordinate;
 
 void main() {
-	gl_Position = uModelMatrix * vec4(aVertexPosition, 0, 1);
+	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition, 0, 1);
 	vTextureCoordinate = aTexturePosition;
 })";
 
@@ -257,7 +258,8 @@ void display(Drawable* object) {
 	auto modelLocation = glGetUniformLocation(program, "uModelMatrix");
 	auto colorLocation = glGetUniformLocation(program, "uColor");
 
-	float viewMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+	std::vector<float> viewMatrixContainer = camera::get_matrix(object->get_layer());
+	float* viewMatrix = viewMatrixContainer.data();
 	
 	std::vector<float> modelMatrixContainer = object->get_model_matrix();
 	float* modelMatrix = modelMatrixContainer.data();

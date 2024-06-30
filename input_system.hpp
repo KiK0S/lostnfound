@@ -16,6 +16,11 @@ struct Controllable {
 };
 
 
+bool get_button_state(SDL_Scancode key) {
+	const Uint8* state = SDL_GetKeyboardState(nullptr);
+	return state[key];
+}
+
 void poll() {
 	while (true) {
 		SDL_Event event;
