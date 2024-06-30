@@ -53,7 +53,7 @@ namespace sprite {
 		GLuint get_texture() {
 			return render::get_texture(file::asset(get_name() + ".png"));
 		}
-		std::string get_name() {
+		std::string get_name() const {
 			return name;
 		}
 		void handle_user_action(SDL_Event e) {

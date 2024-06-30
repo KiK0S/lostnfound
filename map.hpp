@@ -78,7 +78,7 @@ struct Map : public render::Drawable, input::Controllable {
 
 		return render::create_texture(n, m, data.data(), GL_NEAREST);
 	};
-	virtual std::string get_name() {
+	std::string get_name() const {
 		return "map";
 	};
 	virtual bool show() {

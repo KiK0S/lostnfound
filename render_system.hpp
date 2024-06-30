@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -14,6 +15,10 @@
 namespace render {
 
 struct Drawable;
+
+struct cmp {
+	bool operator()(Drawable* a, Drawable* b) const;
+};
 std::vector<Drawable*> drawables;
 
 struct Drawable {
@@ -27,9 +32,12 @@ struct Drawable {
 	virtual int get_layer() const = 0;
 	virtual bool show() { return true; }
 	virtual GLuint get_texture() = 0;
-	virtual std::string get_name() = 0;
+	virtual std::string get_name() const = 0;
 };
 
+bool cmp::operator()(Drawable* a, Drawable* b) const {
+	return a->get_layer() < b->get_layer();
+}
 
 
 const std::string VERTEX_SHADER_SOURCE = R"(#version 300 es
@@ -235,6 +243,7 @@ void init() {
 	for (auto* drawable : drawables) {
 		add_to_frame(drawable);
 	}
+	sort(drawables.begin(), drawables.end(), cmp());
 }
 
 void display(Drawable* object) {
