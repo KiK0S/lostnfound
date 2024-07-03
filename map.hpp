@@ -12,15 +12,23 @@ namespace map
 
 std::vector<uint8_t> color_map[] = {
 	{56, 91, 94, 255},
-	{48, 72, 74, 255},
-	{115, 86, 8, 255},
+	{56, 91, 94, 255},
+	{56, 91, 94, 255},
+	// {48, 72, 74, 255},
+	// {115, 86, 8, 255},
 	{191, 4, 151, 255},
 };
 
 struct Tile : public sprite::Sprite {
 	Tile(const std::string& name, int tile_type, double x, double y, double width, double height):
-		sprite::Sprite(name + "_" + std::to_string(tile_type), y, x, y + height, x + width), tile_type(tile_type) {}
+		sprite::Sprite(name + "_" + std::to_string(tile_type), y, x, y + height, x + width, 0), tile_type(tile_type) {}
 	~Tile() {}
+
+	bool show() {
+		if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || b - camera::position_y >= 1.2 || camera::position_y - t >= 1.2)
+			return false;
+		return true; 
+	}
 	int tile_type;
 };
 
@@ -32,13 +40,13 @@ struct Map : public render::Drawable, input::Controllable {
 	bool visible = false;
 
 	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable() {
-		double width = 10.0 / n;
-		double height = 10.0 / m;
+		double width = 20.0 / n;
+		double height = 20.0 / m;
 
 		for (int i = -n/2; i < n/2; i++) {
 			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
 			for (int j = -m/2; j < m/2; j++) {
-				tiles.back().emplace_back(std::make_unique<Tile>("tile", rand() % 3, (n/2 - i) * width, j * height, width, height));
+				tiles.back().emplace_back(std::make_unique<Tile>("tile", rand() % 3, i * width, j * height, width, height));
 			}
 		}
 		int k = 10;
@@ -57,18 +65,26 @@ struct Map : public render::Drawable, input::Controllable {
 			x = (x + 10) / 20.0;
 			return int(k * n * x);
 		};
-		for (int i = 0; i < course.controls.size(); i++) {
-			map.draw_circle(interpolate_coords(course.controls[i].position_x),
-											interpolate_coords(course.controls[i].position_y),
-											2,
+		map.draw_triangle(map.width() - 1 - interpolate_coords(course.controls[0].position_y + 1),
+											interpolate_coords(course.controls[0].position_x),
+											map.width() - 1 - interpolate_coords(course.controls[0].position_y - 0.5),
+											interpolate_coords(course.controls[0].position_x - 0.5),
+											map.width() - 1 - interpolate_coords(course.controls[0].position_y - 0.5),
+											interpolate_coords(course.controls[0].position_x + 0.5),
+											color_map[3].data());
+		for (int i = 1; i < course.controls.size(); i++) {
+			std::cout << course.controls[i].position_x << ' ' << course.controls[i].position_y << '\n'; 
+			map.draw_circle(map.width() - 1 - interpolate_coords(course.controls[i].position_y),
+											interpolate_coords(course.controls[i].position_x),
+											10,
 											color_map[3].data());
 		}
 		for (int i = 1; i < course.controls.size(); i++) {
-			map.draw_line(interpolate_coords(course.controls[i - 1].position_x),
-										interpolate_coords(course.controls[i - 1].position_y),
+			draw_line(map, map.width() - 1 - interpolate_coords(course.controls[i - 1].position_y),
+										interpolate_coords(course.controls[i - 1].position_x),
+										map.width() - 1 - interpolate_coords(course.controls[i].position_y),
 										interpolate_coords(course.controls[i].position_x),
-										interpolate_coords(course.controls[i].position_y),
-										color_map[3].data());
+										color_map[3].data(), 5);
 		}
 
 		std::vector<uint8_t> data;

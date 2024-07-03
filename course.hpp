@@ -16,7 +16,7 @@ struct Course : game_loop::Dynamic {
 		std::random_device rd;  // Will be used to obtain a seed for the random number engine
 		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
 		std::uniform_real_distribution<> dis(-10, 10);
-
+		controls.emplace_back(Control(0, 0));
 		for (int i = 0; i < n; i++) {
 			controls.emplace_back(Control(dis(gen), dis(gen)));
 		}

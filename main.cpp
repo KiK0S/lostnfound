@@ -11,9 +11,6 @@
 #include <optional>
 
 int main() {
-	sprite::Sprite smiley("smiley", -0.5, -0.5, 0.5, 0.5);
-	player::init();
-
 	auto window = window::get_window("lostnfound");
 	#ifdef __EMSCRIPTEN__
 	window::get_canvas_context();
@@ -21,7 +18,7 @@ int main() {
   SDL_SetWindowSize(window, 960, 480);
 	#endif
 	render::init(window);
-	map::Map map(30, 30);
+	map::Map map(100, 100);
 	render::init();
 	game_loop::render = [&](){
 		render::start_frame();

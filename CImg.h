@@ -68763,3 +68763,41 @@ namespace cil = cimg_library;
 // Local Variables:
 // mode: c++
 // End:
+
+
+// https://stackoverflow.com/a/50675486
+void draw_line(cimg_library::CImg<uint8_t>& image,
+    const int x1, const int y1,
+    const int x2, const int y2,
+    const uint8_t* const color,
+    const unsigned int line_width)
+{
+    if (x1 == x2 && y1 == y2) {
+        return;
+    }
+
+    // Convert line (p1, p2) to polygon (pa, pb, pc, pd)
+    const double x_diff = x1 - x2;
+    const double y_diff = y1 - y2;
+    const double w_diff = line_width / 2.0;
+
+    // Triangle between pa and p1: x_adj^2 + y_adj^2 = w_diff^2
+    // Triangle between p1 and p2: x_diff^2 + y_diff^2 = length^2
+    // Similar triangles: y_adj / x_diff = x_adj / y_diff = w_diff / length
+    // -> y_adj / x_diff = w_diff / sqrt(x_diff^2 + y_diff^2)
+    const int x_adj = y_diff * w_diff / std::sqrt(std::pow(x_diff, 2) + std::pow(y_diff, 2));
+    const int y_adj = x_diff * w_diff / std::sqrt(std::pow(x_diff, 2) + std::pow(y_diff, 2));
+
+    // Points are listed in clockwise order, starting from top-left
+    cimg_library::CImg<int> points(4, 2);
+    points(0, 0) = x1 - x_adj;
+    points(0, 1) = y1 + y_adj;
+    points(1, 0) = x1 + x_adj;
+    points(1, 1) = y1 - y_adj;
+    points(2, 0) = x2 + x_adj;
+    points(2, 1) = y2 - y_adj;
+    points(3, 0) = x2 - x_adj;
+    points(3, 1) = y2 + y_adj;
+
+    image.draw_polygon(points, color);
+}
