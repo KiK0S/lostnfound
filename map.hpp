@@ -14,9 +14,9 @@ std::vector<uint8_t> color_map[] = {
 	{56, 91, 94, 255},
 	{56, 91, 94, 255},
 	{56, 91, 94, 255},
+	{191, 4, 151, 255},
 	// {48, 72, 74, 255},
 	// {115, 86, 8, 255},
-	{191, 4, 151, 255},
 };
 
 struct Tile : public sprite::Sprite {
@@ -32,9 +32,21 @@ struct Tile : public sprite::Sprite {
 	int tile_type;
 };
 
+struct MapObject : public sprite::Sprite {
+	MapObject(const std::string& name, bool* visible, double x, double y, double width, double height):
+		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6, (x + 10) / 20.0 * 1.2 - 0.6, (y + 10) / 20.0 * 1.2 - 0.6 + 0.1, (x + 10) / 20.0 * 1.2 - 0.6 + 0.1, 101), visible(visible),
+		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
+	bool* visible;
+	sprite::Sprite full;
+	bool show() {
+		return *visible;
+	}
+};
+
 struct Map : public render::Drawable, input::Controllable {
 
 	std::vector<std::vector<std::unique_ptr<Tile>>> tiles;
+	std::vector<std::unique_ptr<MapObject>> objects;
 	course::Course course;
 	int n, m;
 	bool visible = false;
@@ -42,13 +54,26 @@ struct Map : public render::Drawable, input::Controllable {
 	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable() {
 		double width = 20.0 / n;
 		double height = 20.0 / m;
-
+		std::random_device rd;  // Will be used to obtain a seed for the random number engine
+		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+		std::uniform_real_distribution<> dis(-10, 10);
+		std::uniform_int_distribution<> tiles_dis(0, 2);
 		for (int i = -n/2; i < n/2; i++) {
 			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
 			for (int j = -m/2; j < m/2; j++) {
-				tiles.back().emplace_back(std::make_unique<Tile>("tile", rand() % 3, i * width, j * height, width, height));
+				tiles.back().emplace_back(std::make_unique<Tile>("tile", tiles_dis(gen), i * width, j * height, width, height));
 			}
 		}
+		int treesCnt = 30;
+		int rockCnt = 8;
+
+		for (int i = 0; i < treesCnt; i++) {
+			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, dis(gen), dis(gen), 0.4, 0.4));
+		}
+		for (int i = 0; i < rockCnt; i++) {
+			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, dis(gen), dis(gen), 0.3, 0.3));
+		}
+
 		int k = 10;
 		cimg_library::CImg<uint8_t> map(k * n, k * m, 1, 4);
 
@@ -100,7 +125,7 @@ struct Map : public render::Drawable, input::Controllable {
 	}
 	~Map() {}
 	int get_layer() const {
-		return 2;
+		return 100;
 	}
 	std::vector<float> get_pos() {
 		return {
