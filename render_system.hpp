@@ -52,6 +52,7 @@ struct TwoShaderProgram : public Program {
 
 TwoShaderProgram texture("texture_2d_v.glsl", "texture_2d_f.glsl");
 TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl");
+TwoShaderProgram bezier("bezier_2d_v.glsl", "bezier_2d_f.glsl");
 
 struct cmp {
 	bool operator()(Drawable* a, Drawable* b) const;
@@ -343,6 +344,14 @@ void display(Drawable* object, Program* program_ptr) {
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, background_texture);
 		glUniform1i(backgroundTexture, 2);
+	} else if (program_ptr->get_name() == "bezier_2d_f.glsl") {
+		float controlPoints[8] = {
+			-0.75f, -0.75f,
+			-0.25f,  1.0f,
+			0.25f, -1.0f,
+			0.75f,  0.0f
+		};
+		glUniform2fv(glGetUniformLocation(program, "controlPoints"), 4, controlPoints);
 	} else {
 		viewMatrixContainer[5] *= -1;
 		viewMatrixContainer[7] *= -1;

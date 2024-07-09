@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include "random.hpp"
+#include "curve.hpp"
 #include "CImg.h"
 
 
@@ -50,6 +51,7 @@ struct Map : public render::Drawable, input::Controllable {
 	std::vector<std::vector<std::unique_ptr<Tile>>> tiles;
 	std::vector<std::unique_ptr<MapObject>> objects;
 	course::Course course;
+	curve::Curve curve;
 	int n, m;
 	bool visible = false;
 
