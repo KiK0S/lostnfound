@@ -5,6 +5,7 @@
 #include "course.hpp"
 #include <memory>
 #include <vector>
+#include "random.hpp"
 #include "CImg.h"
 
 
@@ -55,23 +56,21 @@ struct Map : public render::Drawable, input::Controllable {
 	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable() {
 		double width = 20.0 / n;
 		double height = 20.0 / m;
-		std::random_device rd;  // Will be used to obtain a seed for the random number engine
-		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-		std::uniform_real_distribution<> dis(-10, 10);
-		std::uniform_int_distribution<> tiles_dis(0, 2);
+
 		for (int i = -n/2; i < n/2; i++) {
 			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
 			for (int j = -m/2; j < m/2; j++) {
-				tiles.back().emplace_back(std::make_unique<Tile>("tile", tiles_dis(gen), i * width, j * height, width, height));
+				tiles.back().emplace_back(std::make_unique<Tile>("tile", rnd::getInt(0, 2), i * width, j * height, width, height));
 			}
 		}
 		int treesCnt = 50;
 		int rockCnt = 20;
 
 		for (int i = 0; i < treesCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, dis(gen), dis(gen), 0.4, 0.4));
+			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, rnd::getDouble(-10, 10), rnd::getDouble(-10, 10), 0.4, 0.4));
 		}
 		for (int i = 0; i < rockCnt; i++) {
+			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, rnd::getDouble(-10, 10), rnd::getDouble(-10, 10), 0.3, 0.3));
 		}
 	}
 	~Map() {}
