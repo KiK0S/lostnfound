@@ -1,3 +1,4 @@
+#pragma once
 #include "sprite.hpp"
 #include "render_system.hpp"
 #include "input_system.hpp"
@@ -34,7 +35,7 @@ struct Tile : public sprite::Sprite {
 
 struct MapObject : public sprite::Sprite {
 	MapObject(const std::string& name, bool* visible, double x, double y, double width, double height):
-		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6, (x + 10) / 20.0 * 1.2 - 0.6, (y + 10) / 20.0 * 1.2 - 0.6 + 0.1, (x + 10) / 20.0 * 1.2 - 0.6 + 0.1, 101), visible(visible),
+		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102), visible(visible),
 		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
 	bool* visible;
 	sprite::Sprite full;
@@ -64,68 +65,18 @@ struct Map : public render::Drawable, input::Controllable {
 				tiles.back().emplace_back(std::make_unique<Tile>("tile", tiles_dis(gen), i * width, j * height, width, height));
 			}
 		}
-		int treesCnt = 30;
-		int rockCnt = 8;
+		int treesCnt = 50;
+		int rockCnt = 20;
 
 		for (int i = 0; i < treesCnt; i++) {
 			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, dis(gen), dis(gen), 0.4, 0.4));
 		}
 		for (int i = 0; i < rockCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, dis(gen), dis(gen), 0.3, 0.3));
 		}
-
-		int k = 10;
-		cimg_library::CImg<uint8_t> map(k * n, k * m, 1, 4);
-
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				for (int xi = i * k; xi < (i + 1) * k; xi++) {
-					for (int yj = j * k; yj < (j + 1) * k; yj++) {
-						map.draw_point(xi, yj, 0, color_map[tiles[i][j]->tile_type].data());
-					}
-				}
-			}
-		}
-		auto interpolate_coords = [&](float x) {
-			x = (x + 10) / 20.0;
-			return int(k * n * x);
-		};
-		map.draw_triangle(map.width() - 1 - interpolate_coords(course.controls[0].position_y + 1),
-											interpolate_coords(course.controls[0].position_x),
-											map.width() - 1 - interpolate_coords(course.controls[0].position_y - 0.5),
-											interpolate_coords(course.controls[0].position_x - 0.5),
-											map.width() - 1 - interpolate_coords(course.controls[0].position_y - 0.5),
-											interpolate_coords(course.controls[0].position_x + 0.5),
-											color_map[3].data());
-		for (int i = 1; i < course.controls.size(); i++) {
-			std::cout << course.controls[i].position_x << ' ' << course.controls[i].position_y << '\n'; 
-			map.draw_circle(map.width() - 1 - interpolate_coords(course.controls[i].position_y),
-											interpolate_coords(course.controls[i].position_x),
-											10,
-											color_map[3].data());
-		}
-		for (int i = 1; i < course.controls.size(); i++) {
-			draw_line(map, map.width() - 1 - interpolate_coords(course.controls[i - 1].position_y),
-										interpolate_coords(course.controls[i - 1].position_x),
-										map.width() - 1 - interpolate_coords(course.controls[i].position_y),
-										interpolate_coords(course.controls[i].position_x),
-										color_map[3].data(), 5);
-		}
-
-		std::vector<uint8_t> data;
-		for (int i = 0; i < k * n; i++) {
-			for (int j = 0; j < k * m; j++) {
-				data.push_back(map.atXY(i, j, 0, 0));
-				data.push_back(map.atXY(i, j, 0, 1));
-				data.push_back(map.atXY(i, j, 0, 2));
-				data.push_back(map.atXY(i, j, 0, 3));
-			}
-		}
-		texture_id = render::create_texture(k * n, k * m, data.data(), GL_LINEAR);
 	}
 	~Map() {}
 	int get_layer() const {
-		return 100;
+		return 101;
 	}
 	std::vector<float> get_pos() {
 		return {
@@ -157,8 +108,62 @@ struct Map : public render::Drawable, input::Controllable {
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 	};
-	GLuint texture_id;
+
+	GLuint texture_id = 0;
+	void create_map_texture() {
+		int k = 10;
+		cimg_library::CImg<uint8_t> map(k * n, k * m, 1, 4);
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				for (int xi = i * k; xi < (i + 1) * k; xi++) {
+					for (int yj = j * k; yj < (j + 1) * k; yj++) {
+						map.draw_point(xi, yj, 0, color_map[tiles[i][j]->tile_type].data());
+					}
+				}
+			}
+		}
+		auto interpolate_coords = [&](float x) {
+			x = (x + 10) / 20.0;
+			return int(k * n * x);
+		};
+		map.draw_triangle(interpolate_coords(course.controls[0].position_y + 1),
+											interpolate_coords(course.controls[0].position_x),
+											interpolate_coords(course.controls[0].position_y - 0.5),
+											interpolate_coords(course.controls[0].position_x - 0.5),
+											interpolate_coords(course.controls[0].position_y - 0.5),
+											interpolate_coords(course.controls[0].position_x + 0.5),
+											color_map[3].data());
+		for (int i = 1; i < course.controls.size(); i++) {
+			std::cout << course.controls[i].position_x << ' ' << course.controls[i].position_y << '\n'; 
+			map.draw_circle(interpolate_coords(course.controls[i].position_y),
+											interpolate_coords(course.controls[i].position_x),
+											10,
+											color_map[3].data());
+		}
+		for (int i = 1; i < course.controls.size(); i++) {
+			draw_line(map, interpolate_coords(course.controls[i - 1].position_y),
+										interpolate_coords(course.controls[i - 1].position_x),
+										interpolate_coords(course.controls[i].position_y),
+										interpolate_coords(course.controls[i].position_x),
+										color_map[3].data(), 5);
+		}
+
+		std::vector<uint8_t> data;
+		for (int i = 0; i < k * n; i++) {
+			for (int j = 0; j < k * m; j++) {
+				data.push_back(map.atXY(i, j, 0, 0));
+				data.push_back(map.atXY(i, j, 0, 1));
+				data.push_back(map.atXY(i, j, 0, 2));
+				data.push_back(map.atXY(i, j, 0, 3));
+			}
+		}
+		texture_id = render::create_texture(k * n, k * m, data.data(), GL_LINEAR);
+	}
 	virtual GLuint get_texture() {
+		if (texture_id == 0) {
+			create_map_texture();
+		}
 		return texture_id;
 	};
 	std::string get_name() const {
@@ -167,6 +172,9 @@ struct Map : public render::Drawable, input::Controllable {
 	virtual bool show() {
 		return visible;
 	}
+	render::Program* get_program() {
+		return &render::texture;
+	}
 
 	void handle_user_action(SDL_Event e) {
 		if (e.key.keysym.scancode == SDL_SCANCODE_SPACE)
@@ -174,5 +182,7 @@ struct Map : public render::Drawable, input::Controllable {
 	}
 
 };
+
+Map map(100, 100);
 
 } // namespace map

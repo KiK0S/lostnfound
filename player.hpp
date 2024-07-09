@@ -3,6 +3,7 @@
 #include "input_system.hpp"
 #include "sprite.hpp"
 #include "game_loop_system.hpp"
+#include "camera.hpp"
 namespace player {
 
 
@@ -13,8 +14,8 @@ struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
 		durations["runleft"] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
 	}
 	~Player() {}
-	double position_x = 0;
-	double position_y = 0;
+	float position_x = 0;
+	float position_y = 0;
 
 	double velocity = 0.02f;
 
@@ -24,19 +25,19 @@ struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
 		double dy = 0;
 		// todo: update to velocity-based
 		// todo: add stamina
-		if (input::get_button_state(SDL_SCANCODE_DOWN)) {
+		if (input::get_button_state(SDL_SCANCODE_S)) {
 			dy -= 0.01;
 		}
 
-		if (input::get_button_state(SDL_SCANCODE_UP)) {
+		if (input::get_button_state(SDL_SCANCODE_W)) {
 			dy += 0.01;
 		}
 
-		if (input::get_button_state(SDL_SCANCODE_LEFT)) {
+		if (input::get_button_state(SDL_SCANCODE_A)) {
 			dx -= 0.01;
 		}
 
-		if (input::get_button_state(SDL_SCANCODE_RIGHT)) {
+		if (input::get_button_state(SDL_SCANCODE_D)) {
 			dx += 0.01;
 		}
 		
@@ -59,6 +60,7 @@ struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
 		} else {
 			set_state("runleft");
 		}
+		render::raycast_start = {position_x - camera::position_x, position_y - camera::position_y};
 	}
 };
 

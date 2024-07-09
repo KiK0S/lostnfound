@@ -30,7 +30,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 if (EMSCRIPTEN)
 		set(CMAKE_CXX_FLAGS  "-s USE_SDL=2")
-		SET(CMAKE_EXE_LINKER_FLAGS "-s LLD_REPORT_UNDEFINED -sNO_DISABLE_EXCEPTION_CATCHING -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 --preload-file ${PROJECT_SOURCE_DIR}/assets@/assets")
+		SET(CMAKE_EXE_LINKER_FLAGS "-s LLD_REPORT_UNDEFINED -sNO_DISABLE_EXCEPTION_CATCHING -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 --preload-file ${PROJECT_SOURCE_DIR}/assets@/assets --preload-file ${PROJECT_SOURCE_DIR}/shaders@/shaders")
 else()
 		set(CMAKE_BUILD_TYPE Debug)
 		set(CMAKE_CXX_FLAGS  "-fsanitize=undefined -fsanitize=bounds -fsanitize=address")

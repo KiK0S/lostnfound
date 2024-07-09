@@ -8,6 +8,7 @@
 #include "map.hpp"
 #include "player.hpp"
 #include "camera_update.hpp"
+#include "visibility_system.hpp"
 #include <optional>
 
 int main() {
@@ -18,7 +19,6 @@ int main() {
   SDL_SetWindowSize(window, 960, 480);
 	#endif
 	render::init(window);
-	map::Map map(100, 100);
 	render::init();
 	game_loop::render = [&](){
 		render::start_frame();

@@ -11,11 +11,47 @@
 #include "camera.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "file_system.hpp"
 
 
 namespace render {
 
 struct Drawable;
+
+
+struct Program;
+std::vector<Program*> programs;
+struct Program {
+	Program() {
+		programs.push_back(this);
+	}
+	virtual std::string vertex_shader() = 0;
+	virtual std::string fragment_shader() = 0;
+	virtual std::string get_name() = 0;
+};
+
+
+struct TwoShaderProgram : public Program {
+	TwoShaderProgram(std::string path_vertex, std::string path_fragment): Program(), name(path_fragment) {
+		vertex_source = file::read_file(file::shader(path_vertex));
+		fragment_source = file::read_file(file::shader(path_fragment));
+	}
+	std::string vertex_shader() {
+		return vertex_source;
+	}
+	std::string fragment_shader() {
+		return fragment_source;
+	}
+	std::string get_name() {
+		return name;
+	}
+	std::string name;
+	std::string vertex_source;
+	std::string fragment_source;
+};
+
+TwoShaderProgram texture("texture_2d_v.glsl", "texture_2d_f.glsl");
+TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl");
 
 struct cmp {
 	bool operator()(Drawable* a, Drawable* b) const;
@@ -32,6 +68,7 @@ struct Drawable {
 	virtual std::vector<float> get_model_matrix() = 0;
 	virtual int get_layer() const = 0;
 	virtual bool show() { return true; }
+	virtual Program* get_program() { return &raycast; }
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() const = 0;
 };
@@ -41,41 +78,17 @@ bool cmp::operator()(Drawable* a, Drawable* b) const {
 }
 
 
-const std::string VERTEX_SHADER_SOURCE = R"(#version 300 es
-precision mediump float;
-layout(location = 0) in vec2 aVertexPosition;
-layout(location = 1) in vec2 aTexturePosition;
+struct RenderTarget {
+	GLuint frame_buffer;
+	GLuint output_texture;
+};
 
-uniform mat4 uViewMatrix;
-uniform mat4 uModelMatrix;
-uniform mat4 uProjectionMatrix;
 
-out vec2 vTextureCoordinate;
-
-void main() {
-	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition, 0, 1);
-	vTextureCoordinate = aTexturePosition;
-})";
-
-const std::string FRAGMENT_SHADER_SOURCE = R"(#version 300 es
-precision mediump float;
-
-uniform sampler2D uTexture;
-uniform vec4 uColor;
-
-in vec2 vTextureCoordinate;
-
-out vec4 outColor;
-void main() {
-	outColor = texture(uTexture, vTextureCoordinate);
-	outColor = outColor * uColor;
-})";
-
-GLuint program;
-GLuint vertexShader;
-GLuint fragmentShader;
+std::map<std::string, GLuint> program_ids;
 SDL_Window* _window;
-GLuint load_shader(GLenum shader_type);
+GLuint load_shader(std::string source, GLenum shader_type);
+
+
 
 
 void GLAPIENTRY
@@ -105,21 +118,23 @@ void init(SDL_Window *window) {
 		std::cerr << "Failed to initialize GLEW: " << glewGetErrorString(glewStatus) << std::endl;
 		exit(1);
 	}
-	vertexShader = load_shader(GL_VERTEX_SHADER);
-	fragmentShader = load_shader(GL_FRAGMENT_SHADER);
-	std::cout << "load_program loading" << std::endl;
-	program = glCreateProgram();
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-	glLinkProgram(program);
-	GLint linkSuccess = 0;
-	glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
-	if (linkSuccess == GL_FALSE) {
-			// fail to compile program
-			glDeleteProgram(program);
-			throw std::exception();
-	}
-	std::cout << "load_program loaded" << std::endl;
+	for (Program* program_ptr : programs) {
+		GLuint vertexShader = load_shader(program_ptr->vertex_shader(), GL_VERTEX_SHADER);
+		GLuint fragmentShader = load_shader(program_ptr->fragment_shader(), GL_FRAGMENT_SHADER);
+		std::cout << "load_program loading" << std::endl;
+		GLuint program = glCreateProgram();
+		glAttachShader(program, vertexShader);
+		glAttachShader(program, fragmentShader);
+		glLinkProgram(program);
+		GLint linkSuccess = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
+		if (linkSuccess == GL_FALSE) {
+				// fail to compile program
+				glDeleteProgram(program);
+				throw std::exception();
+		}
+		program_ids[program_ptr->get_name()] = program;
+	}	
 	// During init, enable debug output
 	#ifndef __EMSCRIPTEN__
 	glEnable              ( GL_DEBUG_OUTPUT );
@@ -129,10 +144,9 @@ void init(SDL_Window *window) {
 
 // GL_VERTEX_SHADER
 // GL_FRAGMENT_SHADER
-GLuint load_shader(GLenum shader_type) {
+GLuint load_shader(std::string source, GLenum shader_type) {
 	std::cout << "load_shader " << shader_type << " loading" << std::endl;
 	GLuint glShader = glCreateShader(shader_type);
-	std::string source = (shader_type == GL_VERTEX_SHADER ? VERTEX_SHADER_SOURCE : FRAGMENT_SHADER_SOURCE);
 	GLchar const *files[] = {source.c_str()};
 	GLint lengths[] = {GLint(source.size())};
 	glShaderSource(glShader, 1, files, lengths);
@@ -185,9 +199,9 @@ GLuint get_texture(std::string path) {
 }
 
 void start_frame() {
+	glClearColor(0.3, 0.3, 0.3, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glClearColor(0.3, 0.3, 0.3, 1);
 
 	// Enable depth testing (objects can appear behind/infront of eachother)
 	// glEnable(GL_DEPTH_TEST);
@@ -201,7 +215,9 @@ void start_frame() {
 std::map<std::string, GLuint> vao_data;
 
 void add_to_frame(Drawable* object) {
-	
+	if (vao_data.find(object->get_name()) != vao_data.end()) {
+		return;
+	}
 	GLuint buffers[2];
 	glGenBuffers(2, buffers);
 
@@ -247,9 +263,48 @@ void init() {
 	sort(drawables.begin(), drawables.end(), cmp());
 }
 
-void display(Drawable* object) {
-	if (!object->show())
+RenderTarget create_render_target() {
+	GLuint framebuffer = 0;
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	GLuint output_texture;
+	glGenTextures(1, &output_texture);
+
+	glBindTexture(GL_TEXTURE_2D, output_texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 960, 480, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output_texture, 0);
+
+	GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, draw_buffers);
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR\n";
+		exit(1);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+	return RenderTarget{framebuffer, output_texture};
+}
+
+GLuint transparancy_texture;
+GLuint background_texture;
+std::vector<float> raycast_start;
+
+void bind_render_target(RenderTarget* target) {
+	if (target == nullptr) {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, target->frame_buffer);
+}
+
+
+void display(Drawable* object, Program* program_ptr) {
+	GLuint program = program_ids[program_ptr->get_name()];
 	glUseProgram(program);
 	glBindVertexArray(vao_data[object->get_name()]);
 
@@ -276,12 +331,35 @@ void display(Drawable* object) {
 	glBindTexture(GL_TEXTURE_2D, object->get_texture());
 	glUniform1i(textureLocation, 0);
 
+	if (program_ptr->get_name() == "raycast_2d_f.glsl") {
+		auto playerLocation = glGetUniformLocation(program, "uStartPosition");
+		glUniform2fv(playerLocation, 1, raycast_start.data());
+
+		auto transparancyTexture = glGetUniformLocation(program, "uTransparency");
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, transparancy_texture);
+		glUniform1i(transparancyTexture, 1);
+		auto backgroundTexture = glGetUniformLocation(program, "uBackground");
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, background_texture);
+		glUniform1i(backgroundTexture, 2);
+	} else {
+		viewMatrixContainer[5] *= -1;
+		viewMatrixContainer[7] *= -1;
+		glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
+	}
+
+	
+
 	glDrawArrays(GL_TRIANGLES, 0, object->get_pos().size());
+	glUseProgram(0);
 }
 
 void update() {
 	for (auto* drawable : drawables) {
-		render::display(drawable);
+		if (!drawable->show())
+			continue;
+		render::display(drawable, drawable->get_program());
 	}
 }
 

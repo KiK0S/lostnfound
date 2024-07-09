@@ -63,6 +63,11 @@ namespace sprite {
 		int get_layer() const {
 			return layer;
 		}
+		bool show() {
+			if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || b - camera::position_y >= 1.2 || camera::position_y - t >= 1.2)
+				return false;
+			return true; 
+		}
 		float l, t, r, b;
 		std::string name;
 		int layer;

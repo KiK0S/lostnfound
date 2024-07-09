@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include "game_loop_system.hpp"
 #include <random>
@@ -11,7 +13,7 @@ struct Control {
 	float position_y;
 };
 
-struct Course : game_loop::Dynamic {
+struct Course : game_loop::Dynamic, input::Controllable {
 	Course(int n) : game_loop::Dynamic() {
 		std::random_device rd;  // Will be used to obtain a seed for the random number engine
 		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
@@ -32,7 +34,6 @@ struct Course : game_loop::Dynamic {
 		float diff_x = player::player.position_x - controls[current_control].position_x;
 		float diff_y = player::player.position_y - controls[current_control].position_y;
 		float d = diff_x * diff_x + diff_y * diff_y;
-		std::cout << d << '\n';
 		if (d > control_radius)
 			return;
 
@@ -40,6 +41,15 @@ struct Course : game_loop::Dynamic {
 //		drawText(control_number);
 		current_control++;
 		std::cout << "found control\n";
+	}
+
+	void handle_user_action(SDL_Event e) {
+		if (e.key.keysym.scancode == SDL_SCANCODE_E) {
+			float diff_x = player::player.position_x - controls[current_control].position_x;
+			float diff_y = player::player.position_y - controls[current_control].position_y;
+			float d = diff_x * diff_x + diff_y * diff_y;
+			std::cout << d << '\n';
+		}
 	}
 };
 
