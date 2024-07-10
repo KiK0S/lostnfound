@@ -40,6 +40,6 @@ void main()
 
 	// Adjust the Bézier position along the normal
 	bezierPos += 0.01 * aPos.y * normal;
-
-	gl_Position = vec4(bezierPos, 0.0, 1.0);
+	
+	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(bezierPos, 0.0, 1.0);
 }

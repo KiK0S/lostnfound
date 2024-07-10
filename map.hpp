@@ -55,7 +55,7 @@ struct Map : public render::Drawable, input::Controllable {
 	int n, m;
 	bool visible = false;
 
-	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable() {
+	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable(), curve({}) {
 		double width = 20.0 / n;
 		double height = 20.0 / m;
 
@@ -74,6 +74,17 @@ struct Map : public render::Drawable, input::Controllable {
 		for (int i = 0; i < rockCnt; i++) {
 			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, rnd::getDouble(-10, 10), rnd::getDouble(-10, 10), 0.3, 0.3));
 		}
+
+		curve = curve::Curve({-0.75f, -0.75f,
+			-0.25f,  1.0f,
+			0.25f, -1.0f,
+			0.75f,  0.0f,
+			1.0f, 0.0f,
+			1.25f, -0.5f,
+			1.7f, 2.0f,
+			1.8f, 1.0f,
+			1.6f, 0.8f,
+			1.5f, 0.9f});
 	}
 	~Map() {}
 	int get_layer() const {

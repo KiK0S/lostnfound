@@ -1,15 +1,16 @@
 #pragma once
 #include "render_system.hpp"
+#include <memory>
 
 namespace curve {
 
 
-struct Curve : public render::Drawable {
-	Curve(): render::Drawable() {}
+struct BezierCurve : public render::Drawable {
+	BezierCurve(std::array<float, 8> points): render::Drawable(), points(points) {}
 	
 
 	std::vector<float> get_pos() {
-		int n = 10;
+		int n = 30;
 		std::vector<float> result;
 		for (int i = 0; i + 1 < n; ++i) {
 			float t = i / float(n- 1);
@@ -62,6 +63,27 @@ struct Curve : public render::Drawable {
 	}
 	render::Program* get_program() {
 		return &render::bezier;
+	}
+	void reg_uniforms(GLuint program) {
+		glUniform2fv(glGetUniformLocation(program, "controlPoints"), 4, points.data());
+	}
+	std::array<float, 8> points;
+};
+
+struct Curve {
+	std::vector<std::unique_ptr<BezierCurve>> curves;
+	Curve(std::vector<float> points) {
+		float prev_x = points.size() > 2 ? points[0] : 0;
+		float prev_y = points.size() > 2 ? points[1] : 0;
+
+		for (int i = 2; i + 6 <= points.size(); i += 4) {
+			float next_x = i + 10 <= points.size() ? (points[i + 2] + points[i + 4]) / 2 : points[i + 4];
+			float next_y = i + 10 <= points.size() ? (points[i + 3] + points[i + 5]) / 2 : points[i + 5];
+			curves.push_back(std::make_unique<BezierCurve>(std::array{prev_x, prev_y, points[i], points[i + 1],
+													 points[i + 2], points[i + 3], next_x, next_y}));
+			prev_x = next_x;
+			prev_y = next_y;
+		}
 	}
 };
 

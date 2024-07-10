@@ -23,7 +23,7 @@ struct Background: public sprite::Sprite, game_loop::Dynamic {
 };
 
 struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
-	ObstacleMap(): render::Drawable(), game_loop::Dynamic(), background_page("page") {
+	ObstacleMap(): render::Drawable(), game_loop::Dynamic(), background_page("cloud") {
 		for (const auto& obj : map::map.objects) {
 			float cx = (obj->full.l + obj->full.r) / 2.0f; 
 			float cy = (obj->full.b + obj->full.t) / 2.0f; 

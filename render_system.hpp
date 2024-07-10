@@ -72,6 +72,7 @@ struct Drawable {
 	virtual Program* get_program() { return &raycast; }
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() const = 0;
+virtual void reg_uniforms(GLuint id) {}
 };
 
 bool cmp::operator()(Drawable* a, Drawable* b) const {
@@ -344,20 +345,12 @@ void display(Drawable* object, Program* program_ptr) {
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, background_texture);
 		glUniform1i(backgroundTexture, 2);
-	} else if (program_ptr->get_name() == "bezier_2d_f.glsl") {
-		float controlPoints[8] = {
-			-0.75f, -0.75f,
-			-0.25f,  1.0f,
-			0.25f, -1.0f,
-			0.75f,  0.0f
-		};
-		glUniform2fv(glGetUniformLocation(program, "controlPoints"), 4, controlPoints);
-	} else {
-		viewMatrixContainer[5] *= -1;
+	} else if (program_ptr->get_name() == "texture_2d_f.glsl") {
+				viewMatrixContainer[5] *= -1;
 		viewMatrixContainer[7] *= -1;
 		glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
 	}
-
+object->reg_uniforms(program);
 	
 
 	glDrawArrays(GL_TRIANGLES, 0, object->get_pos().size());
