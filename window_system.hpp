@@ -30,6 +30,9 @@ EMSCRIPTEN_WEBGL_CONTEXT_HANDLE get_canvas_context(const char *target,
     auto res = emscripten_webgl_make_context_current(context);
     if (res != EMSCRIPTEN_RESULT_SUCCESS)
       throw std::runtime_error("Failed to make WebGL context the current context");
+   	emscripten_webgl_enable_extension(context, "WEBGL_color_buffer_float");
+   	emscripten_webgl_enable_extension(context, "EXT_color_buffer_float");
+
     return context;
 }
 

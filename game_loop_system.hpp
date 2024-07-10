@@ -29,6 +29,10 @@ bool isRunning = true;
 std::function<void()> render;
 
 void Loop() {
+    #ifdef __EMSCRIPTEN__
+    try {
+    #endif
+
     if (!isRunning) {
         return;
     }
@@ -41,6 +45,13 @@ void Loop() {
 
     // Render
 	render();
+    
+    #ifdef __EMSCRIPTEN__
+    } catch(...) {
+        emscripten_cancel_main_loop();
+        // emscripten_force_exit(1);
+    }
+    #endif
 
     // Post render
 		// ??

@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <stdexcept>
 #include "camera.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -72,7 +73,7 @@ struct Drawable {
 	virtual Program* get_program() { return &raycast; }
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() const = 0;
-virtual void reg_uniforms(GLuint id) {}
+	virtual void reg_uniforms(GLuint id) {}
 };
 
 bool cmp::operator()(Drawable* a, Drawable* b) const {
@@ -115,15 +116,19 @@ void init(SDL_Window *window) {
 	auto *context = SDL_GL_CreateContext(window);
 	std::cout << "glewInit" << std::endl;
 
+	const unsigned char* version = glGetString(GL_VERSION);
+	std::cout << "opengl version " << version << '\n';
+
 	GLenum glewStatus = glewInit();
 	if (glewStatus != GLEW_OK) {
 		std::cerr << "Failed to initialize GLEW: " << glewGetErrorString(glewStatus) << std::endl;
-		exit(1);
+		throw std::runtime_error("Failed to initialize GLEW");
+
 	}
 	for (Program* program_ptr : programs) {
+		std::cout << "load_program loading" << std::endl;
 		GLuint vertexShader = load_shader(program_ptr->vertex_shader(), GL_VERTEX_SHADER);
 		GLuint fragmentShader = load_shader(program_ptr->fragment_shader(), GL_FRAGMENT_SHADER);
-		std::cout << "load_program loading" << std::endl;
 		GLuint program = glCreateProgram();
 		glAttachShader(program, vertexShader);
 		glAttachShader(program, fragmentShader);
@@ -133,7 +138,7 @@ void init(SDL_Window *window) {
 		if (linkSuccess == GL_FALSE) {
 				// fail to compile program
 				glDeleteProgram(program);
-				throw std::exception();
+				throw std::runtime_error("cant create program");
 		}
 		program_ids[program_ptr->get_name()] = program;
 	}	
@@ -158,7 +163,7 @@ GLuint load_shader(std::string source, GLenum shader_type) {
 	if (compileSuccess == GL_FALSE) {
 			// fail to compile shader!
 			glDeleteShader(glShader);
-			throw std::exception();
+			throw std::runtime_error("can't compile shader");
 	}
 	std::cout << "load_shader " << shader_type << " loaded" << std::endl;
 	return glShader;
@@ -275,7 +280,7 @@ RenderTarget create_render_target() {
 
 	glBindTexture(GL_TEXTURE_2D, output_texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 960, 480, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 960, 480, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -284,8 +289,8 @@ RenderTarget create_render_target() {
 	GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, draw_buffers);
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "ERROR\n";
-		exit(1);
+    std::cout << "BROKEN framebuffer\n";
+		throw std::runtime_error("broken framebuffer");
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -346,11 +351,11 @@ void display(Drawable* object, Program* program_ptr) {
 		glBindTexture(GL_TEXTURE_2D, background_texture);
 		glUniform1i(backgroundTexture, 2);
 	} else if (program_ptr->get_name() == "texture_2d_f.glsl") {
-				viewMatrixContainer[5] *= -1;
+		viewMatrixContainer[5] *= -1;
 		viewMatrixContainer[7] *= -1;
 		glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
 	}
-object->reg_uniforms(program);
+	object->reg_uniforms(program);
 	
 
 	glDrawArrays(GL_TRIANGLES, 0, object->get_pos().size());
