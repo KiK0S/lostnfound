@@ -1,0 +1,39 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Emscripten
+      uses: ludeeus/action-shellcheck@v0.9.0
+      with:
+        args: curl -O https://emscripten.org/emscripten-portable.tar.gz && tar -xzf emscripten-portable.tar.gz
+
+    - name: Install Emscripten
+      run: |
+        cd emscripten
+        ./emsdk install latest
+        ./emsdk activate latest
+        source ./emsdk_env.sh
+
+    - name: Build with Emscripten
+      run: |
+        mkdir build
+        cd build
+        emcmake cmake ..
+        emmake make
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build
