@@ -13,12 +13,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Emscripten
-      run: |
-        curl -O https://emscripten.org/emscripten-portable.tar.gz && tar -xzf emscripten-portable.tar.gz
-
     - name: Install Emscripten
       run: |
+        git clone https://github.com/emscripten-core/emsdk.git
         cd emscripten
         ./emsdk install latest
         ./emsdk activate latest
