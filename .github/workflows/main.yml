@@ -14,9 +14,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Emscripten
-      uses: ludeeus/action-shellcheck@master
-      with:
-        args: curl -O https://emscripten.org/emscripten-portable.tar.gz && tar -xzf emscripten-portable.tar.gz
+      run: |
+        curl -O https://emscripten.org/emscripten-portable.tar.gz && tar -xzf emscripten-portable.tar.gz
 
     - name: Install Emscripten
       run: |
