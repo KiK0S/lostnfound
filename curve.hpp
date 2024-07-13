@@ -23,9 +23,9 @@ struct BezierCurve : public render::Drawable {
 			
 			result.push_back((t + 1.0f / float(n-1)) * 2 - 1.0f);   // x position (mapped to t)
 			result.push_back(-1.0f);   // x position (mapped to t)
-			result.push_back(t * 2 - 1.0f);   // x position (mapped to t)
-			result.push_back(1.0f);   // x position (mapped to t)
 			result.push_back((t + 1.0f / float(n-1)) * 2 - 1.0f);   // x position (mapped to t)
+			result.push_back(1.0f);   // x position (mapped to t)
+			result.push_back(t * 2 - 1.0f);   // x position (mapped to t)
 			result.push_back(1.0f);   // x position (mapped to t)
 			
 		}

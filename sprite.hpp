@@ -19,8 +19,8 @@ namespace sprite {
 				-1.0f, 1.0f, // Vertex 3: bottom left
 
 				1.0f, -1.0f, // Vertex 4: top right
+				1.0f, 1.0f,  // Vertex 6: bottom right
 				-1.0f, 1.0f, // Vertex 5: bottom left
-				1.0f, 1.0f  // Vertex 6: bottom right
 			};
 		}
 		std::vector<float> get_uv() {
@@ -30,8 +30,8 @@ namespace sprite {
 				0.0f, 0.0f, // Vertex 3: bottom left
 
 				1.0f,  1.0f, // Vertex 4: top right
-				0.0f, 0.0f, // Vertex 5: bottom left
-				1.0f, 0.0f  // Vertex 6: bottom right
+				1.0f, 0.0f,  // Vertex 6: bottom right
+				0.0f, 0.0f // Vertex 5: bottom left
 			};
 		}
 
@@ -64,7 +64,7 @@ namespace sprite {
 			return layer;
 		}
 		bool show() {
-			if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || b - camera::position_y >= 1.2 || camera::position_y - t >= 1.2)
+			if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || t - camera::position_y >= 1.2 || camera::position_y - b >= 1.2)
 				return false;
 			return true; 
 		}

@@ -42,8 +42,8 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 			-1.0f, 1.0f, // Vertex 3: bottom left
 
 			1.0f, -1.0f, // Vertex 4: top right
-			-1.0f, 1.0f, // Vertex 5: bottom left
-			1.0f, 1.0f  // Vertex 6: bottom right
+			1.0f, 1.0f,  // Vertex 6: bottom right
+			-1.0f, 1.0f // Vertex 5: bottom left
 		};
 	}
 	virtual std::vector<float> get_uv() {
@@ -53,8 +53,8 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 				0.0f, 0.0f, // Vertex 3: bottom left
 
 				1.0f,  1.0f, // Vertex 4: top right
-				0.0f, 0.0f, // Vertex 5: bottom left
-				1.0f, 0.0f  // Vertex 6: bottom right
+				1.0f, 0.0f,  // Vertex 6: bottom right
+				0.0f, 0.0f // Vertex 5: bottom left
 			};
 	}
 	virtual std::vector<float> get_model_matrix() {
@@ -72,7 +72,7 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 		return "obstacle-map";
 	};
 	int get_layer() const {
-		return 1;
+		return 2;
 	}
 	virtual bool show() {
 		return false;
@@ -89,7 +89,7 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 		glClearColor(0.0, 0.3, 0.3, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		for (const auto& circle : circles) {
-			render::display(circle.get(), &render::texture);
+			render::display(circle.get(), &render::texture_framebuffer);
 		}
 		render::bind_render_target(nullptr);
 		render::transparancy_texture = get_texture();

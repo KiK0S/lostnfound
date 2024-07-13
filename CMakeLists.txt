@@ -17,6 +17,10 @@ FetchContent_MakeAvailable(stb_image)
 add_library(stb_image INTERFACE)
 target_include_directories(stb_image INTERFACE ${stb_image_SOURCE_DIR})
 
+set(GLM_DIR "${CMAKE_SOURCE_DIR}/glm")
+add_subdirectory(${GLM_DIR})
+
+include_directories(${GLM_DIR})
 
 
 set(EXE_SOURCES

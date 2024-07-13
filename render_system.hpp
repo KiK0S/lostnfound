@@ -13,6 +13,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "file_system.hpp"
+#include "glm/glm/vec4.hpp"
+#include "glm/glm/vec2.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 
 namespace render {
@@ -52,6 +55,7 @@ struct TwoShaderProgram : public Program {
 };
 
 TwoShaderProgram texture("texture_2d_v.glsl", "texture_2d_f.glsl");
+TwoShaderProgram texture_framebuffer("texture_framebuffer_2d_v.glsl", "texture_2d_f.glsl");
 TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl");
 TwoShaderProgram bezier("bezier_2d_v.glsl", "bezier_2d_f.glsl");
 
@@ -74,6 +78,7 @@ struct Drawable {
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() const = 0;
 	virtual void reg_uniforms(GLuint id) {}
+	virtual glm::vec4 get_color() { return glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};	}
 };
 
 bool cmp::operator()(Drawable* a, Drawable* b) const {
@@ -118,6 +123,8 @@ void init(SDL_Window *window) {
 
 	const unsigned char* version = glGetString(GL_VERSION);
 	std::cout << "opengl version " << version << '\n';
+	
+	glEnable(GL_CULL_FACE);
 
 	GLenum glewStatus = glewInit();
 	if (glewStatus != GLEW_OK) {
@@ -328,11 +335,11 @@ void display(Drawable* object, Program* program_ptr) {
 
 	float projectMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-	float color[4] = {1.0, 1.0, 1.0, 1.0};
+	glm::vec4 color = object->get_color();
 	glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
 	glUniformMatrix4fv(projectionLocation, 1, GL_TRUE, projectMatrix);
 	glUniformMatrix4fv(modelLocation, 1, GL_TRUE, modelMatrix);
-	glUniform4fv(colorLocation, 1, color);
+	glUniform4fv(colorLocation, 1, glm::value_ptr(color));
 	auto textureLocation = glGetUniformLocation(program, "uTexture");
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, object->get_texture());
@@ -351,8 +358,8 @@ void display(Drawable* object, Program* program_ptr) {
 		glBindTexture(GL_TEXTURE_2D, background_texture);
 		glUniform1i(backgroundTexture, 2);
 	} else if (program_ptr->get_name() == "texture_2d_f.glsl") {
-		viewMatrixContainer[5] *= -1;
-		viewMatrixContainer[7] *= -1;
+		// viewMatrixContainer[5] *= -1;
+		// viewMatrixContainer[7] *= -1;
 		glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
 	}
 	object->reg_uniforms(program);

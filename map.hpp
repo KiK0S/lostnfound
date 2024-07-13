@@ -7,6 +7,7 @@
 #include <vector>
 #include "random.hpp"
 #include "curve.hpp"
+#include "area.hpp"
 #include "CImg.h"
 
 
@@ -52,10 +53,19 @@ struct Map : public render::Drawable, input::Controllable {
 	std::vector<std::unique_ptr<MapObject>> objects;
 	course::Course course;
 	curve::Curve curve;
+	area::AreaObject lake;
 	int n, m;
 	bool visible = false;
 
-	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable(), curve({}) {
+	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable(), curve({}), lake("lake", {
+		glm::vec2(-3.0f, 0.0f),
+		glm::vec2(-2.5f, -0.1f),
+		glm::vec2(-2.4f, 0.1f),
+		glm::vec2(-1.0f, -0.3f),
+		glm::vec2(-0.75f, -0.75f),
+		glm::vec2(-1.0f, -2.0f),
+		glm::vec2(-2.5f, -1.3f)
+	}, glm::vec4{0.02f, 0.1f, 0.8f, 1.0f}) {
 		double width = 20.0 / n;
 		double height = 20.0 / m;
 
@@ -92,19 +102,19 @@ struct Map : public render::Drawable, input::Controllable {
 	}
 	std::vector<float> get_pos() {
 		return {
-			-0.6f, -0.6f, // Vertex 1: top left
 			0.6f, -0.6f, // Vertex 2: top right
+			-0.6f, -0.6f, // Vertex 1: top left
 			-0.6f, 0.6f, // Vertex 3: bottom left
 
 			0.6f, -0.6f, // Vertex 4: top right
 			-0.6f, 0.6f, // Vertex 5: bottom left
-			0.6f, 0.6f  // Vertex 6: bottom right
+			0.6f, 0.6f // Vertex 6: bottom right
 		};
 	}
 	virtual std::vector<float> get_uv() {
 		return {
-				0.0f,  1.0f, // Vertex 1: top left
 				1.0f,  1.0f, // Vertex 2: top right
+				0.0f,  1.0f, // Vertex 1: top left
 				0.0f, 0.0f, // Vertex 3: bottom left
 
 				1.0f,  1.0f, // Vertex 4: top right
