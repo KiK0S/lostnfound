@@ -8,29 +8,43 @@ class RandomGenerator {
 public:
 	RandomGenerator() : generator(seed()) {}
 
-	int getInt(int min, int max) {
+	int get_int(int min, int max) {
 		std::uniform_int_distribution<int> distribution(min, max);
 		return distribution(generator);
 	}
 
-	double getDouble(double min, double max) {
+	double get_double(double min, double max) {
 		std::uniform_real_distribution<double> distribution(min, max);
 		return distribution(generator);
 	}
+
+	double get_normal(double mu, double sigma) {
+		std::uniform_real_distribution<double> distribution(mu, sigma);
+		return distribution(generator);
+	}
+	
 
 private:
 	std::random_device seed;
 	std::mt19937 generator;
 };
 
-RandomGenerator randomGenerator;
+RandomGenerator random_generator;
 
-int getInt(int min, int max) {
-	return randomGenerator.getInt(min, max);
+int get_int(int min, int max) {
+	return random_generator.get_int(min, max);
 }
 
-double getDouble(double min, double max) {
-	return randomGenerator.getInt(min, max);
+double get_double(double min, double max) {
+	return random_generator.get_double(min, max);
+}
+
+double get_normal(double mu, double sigma) {
+	return random_generator.get_normal(mu, sigma);
+}
+
+bool toss_coin(double prob) {
+	return random_generator.get_double(0.0, 1.0) <= prob;
 }
 
 struct PerlinNoise {

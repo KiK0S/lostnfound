@@ -17,7 +17,7 @@ struct Course : game_loop::Dynamic, input::Controllable {
 	Course(int n) : game_loop::Dynamic() {
 		controls.emplace_back(Control(0, 0));
 		for (int i = 0; i < n; i++) {
-			controls.emplace_back(Control(rnd::getDouble(-10, 10), rnd::getDouble(-10, 10)));
+			controls.emplace_back(Control(rnd::get_double(-10, 10), rnd::get_double(-10, 10)));
 		}
 	}
 	~Course() {}

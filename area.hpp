@@ -2,6 +2,7 @@
 #include "render_system.hpp"
 #include "sprite.hpp"
 #include "delaunay-cpp/delaunay.hpp"
+#include "spawning_system.hpp"
 
 
 namespace area {
@@ -15,9 +16,6 @@ struct AreaObject : public render::Drawable {
 		this->points.resize(res.triangles.size() * 6);
 		this->uv.assign(res.triangles.size() * 6, 0.0f);
 		for (int i = 0; i < res.triangles.size(); i++) {
-			std::cout << res.triangles[i].p0.x << ' ' << res.triangles[i].p0.y << ' ' << 
-			res.triangles[i].p1.x << ' ' << res.triangles[i].p1.y << ' ' << 
-			res.triangles[i].p2.x << ' ' << res.triangles[i].p2.y << '\n';
 			this->points[6 * i + 0] = res.triangles[i].p0.x;
 			this->points[6 * i + 1] = res.triangles[i].p0.y;
 			this->points[6 * i + 2] = res.triangles[i].p2.x;
@@ -26,6 +24,20 @@ struct AreaObject : public render::Drawable {
 			this->points[6 * i + 5] = res.triangles[i].p1.y;
 		}
 	}
+	AreaObject(std::string name, std::vector<glm::vec2> points, glm::vec4 color, std::vector<spawn::SpawningRule> rules): AreaObject(name, points, color) {
+		for (auto rule : rules) {
+			for (int i = 0; i < this->points.size(); i += 6) {
+				std::vector<glm::vec2> new_points = spawn::points(glm::vec2{this->points[i], this->points[i + 1]},
+																											glm::vec2{this->points[i + 2], this->points[i + 3]},
+																											glm::vec2{this->points[i + 4], this->points[i + 5]},
+																											rule.density);
+				for (auto point : new_points) {
+					point_objects.push_back(rule.spawn(point));
+				}
+			}
+		}
+	}
+
 	std::vector<float> get_pos() {
 		return points;
 	}
@@ -44,7 +56,7 @@ struct AreaObject : public render::Drawable {
 		};
 	}
 	int get_layer() const {
-		return 3;
+		return 1;
 	}
 	GLuint get_texture() {
 		return render::get_texture("");
@@ -58,6 +70,8 @@ struct AreaObject : public render::Drawable {
 	glm::vec4 color;
 	std::vector<float> points;
 	std::vector<float> uv;
+
+	std::vector<std::unique_ptr<render::Drawable>> point_objects;
 };
 
 }

@@ -9,6 +9,7 @@
 #include "curve.hpp"
 #include "area.hpp"
 #include "CImg.h"
+#include "spawning_system.hpp"
 
 
 namespace map
@@ -65,24 +66,33 @@ struct Map : public render::Drawable, input::Controllable {
 		glm::vec2(-0.75f, -0.75f),
 		glm::vec2(-1.0f, -2.0f),
 		glm::vec2(-2.5f, -1.3f)
-	}, glm::vec4{0.02f, 0.1f, 0.8f, 1.0f}) {
+	}, glm::vec4{0.02f, 0.1f, 0.8f, 1.0f}, 
+		{
+			spawn::SpawningRule{
+				0.7,
+				[](glm::vec2 pos) {
+					return std::make_unique<sprite::Sprite>("duck", pos.x - 0.1, pos.y - 0.1, pos.x + 0.1, pos.y + 0.1, 2);
+				}
+			}	
+		}
+	) {
 		double width = 20.0 / n;
 		double height = 20.0 / m;
 
 		for (int i = -n/2; i < n/2; i++) {
 			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
 			for (int j = -m/2; j < m/2; j++) {
-				tiles.back().emplace_back(std::make_unique<Tile>("tile", rnd::getInt(0, 2), i * width, j * height, width, height));
+				tiles.back().emplace_back(std::make_unique<Tile>("tile", rnd::get_int(0, 2), i * width, j * height, width, height));
 			}
 		}
 		int treesCnt = 50;
 		int rockCnt = 20;
 
 		for (int i = 0; i < treesCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, rnd::getDouble(-10, 10), rnd::getDouble(-10, 10), 0.4, 0.4));
+			objects.emplace_back(std::make_unique<MapObject>("tree", &visible, rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.4, 0.4));
 		}
 		for (int i = 0; i < rockCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, rnd::getDouble(-10, 10), rnd::getDouble(-10, 10), 0.3, 0.3));
+			objects.emplace_back(std::make_unique<MapObject>("rock", &visible, rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.3, 0.3));
 		}
 
 		curve = curve::Curve({-0.75f, -0.75f,

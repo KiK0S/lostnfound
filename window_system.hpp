@@ -18,7 +18,7 @@ SDL_Window * get_window(std::string title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 
   std::cout << "get_window" << std::endl;
-  return SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+  return SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 960, 960, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 }
 
 

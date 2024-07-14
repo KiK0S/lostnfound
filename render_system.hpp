@@ -287,7 +287,7 @@ RenderTarget create_render_target() {
 
 	glBindTexture(GL_TEXTURE_2D, output_texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 960, 480, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 960, 960, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
