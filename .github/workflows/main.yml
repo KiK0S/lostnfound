@@ -23,7 +23,9 @@ jobs:
 
     - name: Build with Emscripten
       run: |
+        cd emsdk
         source ./emsdk_env.sh
+        cd ..
         mkdir build
         cd build
         emcmake cmake ..
