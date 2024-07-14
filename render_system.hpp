@@ -23,6 +23,10 @@ namespace render {
 struct Drawable;
 
 
+GLuint transparancy_texture;
+GLuint background_texture;
+glm::vec2 raycast_start;
+
 struct Program;
 std::vector<Program*> programs;
 struct Program {
@@ -32,14 +36,16 @@ struct Program {
 	virtual std::string vertex_shader() = 0;
 	virtual std::string fragment_shader() = 0;
 	virtual std::string get_name() = 0;
+	virtual void reg_uniforms(GLuint program_id) = 0;
 };
 
 
 struct TwoShaderProgram : public Program {
-	TwoShaderProgram(std::string path_vertex, std::string path_fragment): Program(), name(path_fragment) {
+	TwoShaderProgram(std::string path_vertex, std::string path_fragment, std::function<void(GLuint)> reg_uniforms): Program(), name(path_fragment + ":" + path_vertex), reg_uniforms_impl(reg_uniforms) {
 		vertex_source = file::read_file(file::shader(path_vertex));
 		fragment_source = file::read_file(file::shader(path_fragment));
 	}
+	TwoShaderProgram(std::string path_vertex, std::string path_fragment): TwoShaderProgram(path_vertex, path_fragment, [](GLuint){}) {}
 	std::string vertex_shader() {
 		return vertex_source;
 	}
@@ -49,14 +55,31 @@ struct TwoShaderProgram : public Program {
 	std::string get_name() {
 		return name;
 	}
+	void reg_uniforms(GLuint program_id) {
+		reg_uniforms_impl(program_id);
+	}
 	std::string name;
 	std::string vertex_source;
 	std::string fragment_source;
+	std::function<void(GLuint)> reg_uniforms_impl;
 };
 
-TwoShaderProgram texture("texture_2d_v.glsl", "texture_2d_f.glsl");
-TwoShaderProgram texture_framebuffer("texture_framebuffer_2d_v.glsl", "texture_2d_f.glsl");
-TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl");
+void raycast_uniforms(GLuint program_id) {
+	auto playerLocation = glGetUniformLocation(program_id, "uStartPosition");
+	glUniform2fv(playerLocation, 1, glm::value_ptr(raycast_start));
+
+	auto transparancyTexture = glGetUniformLocation(program_id, "uTransparency");
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, transparancy_texture);
+	glUniform1i(transparancyTexture, 1);
+	auto backgroundTexture = glGetUniformLocation(program_id, "uBackground");
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, background_texture);
+	glUniform1i(backgroundTexture, 2);
+}
+TwoShaderProgram texture_screenspace_program("texture_2d_v.glsl", "texture_2d_f.glsl");
+TwoShaderProgram texture_screenspace_framebuffer_program("texture_framebuffer_2d_v.glsl", "texture_2d_f.glsl");
+TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl", raycast_uniforms);
 TwoShaderProgram bezier("bezier_2d_v.glsl", "bezier_2d_f.glsl");
 
 struct cmp {
@@ -77,7 +100,9 @@ struct Drawable {
 	virtual Program* get_program() { return &raycast; }
 	virtual GLuint get_texture() = 0;
 	virtual std::string get_name() const = 0;
-	virtual void reg_uniforms(GLuint id) {}
+	virtual void reg_uniforms(GLuint id) {
+		get_program()->reg_uniforms(id);
+	}
 	virtual glm::vec4 get_color() { return glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};	}
 };
 
@@ -113,6 +138,7 @@ MessageCallback( GLenum source,
             type, severity, message );
 }
 
+char errorLog[1024];
 
 void init(SDL_Window *window) {
 	_window = window;
@@ -147,11 +173,29 @@ void init(SDL_Window *window) {
 				glDeleteProgram(program);
 				throw std::runtime_error("cant create program");
 		}
+
+		// GLint is_valid = 0;
+		// glGetProgramiv(program, GL_VALIDATE_STATUS, &is_valid);
+		// if (is_valid == GL_FALSE) {
+		// 	GLint maxLength = 0;
+		// 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+		// 	glGetProgramInfoLog(program, maxLength, &maxLength, errorLog);
+
+		// 	for (int i = 0; i < maxLength; i++) {
+		// 		std::cerr << errorLog[i];
+		// 	}
+		// 	std::cerr << '\n';
+		// 	std::cerr << "Program validation failed: " << std::endl;
+		// 	glDeleteProgram(program);
+		// 	throw std::runtime_error("cant create program");
+		// }
 		program_ids[program_ptr->get_name()] = program;
 	}	
 	// During init, enable debug output
 	#ifndef __EMSCRIPTEN__
 	glEnable              ( GL_DEBUG_OUTPUT );
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback( MessageCallback, 0 );
 	#endif
 }
@@ -168,6 +212,16 @@ GLuint load_shader(std::string source, GLenum shader_type) {
 	GLint compileSuccess = 0;
 	glGetShaderiv(glShader, GL_COMPILE_STATUS, &compileSuccess);
 	if (compileSuccess == GL_FALSE) {
+			GLint maxLength = 0;
+			glGetShaderiv(glShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			glGetShaderInfoLog(glShader, maxLength, &maxLength, errorLog);
+			for (int i = 0; i < maxLength; i++) {
+				std::cerr << errorLog[i];
+			}
+			std::cerr << '\n';
+			std::cerr << "Compiling shader failed: " << std::endl;
+
 			// fail to compile shader!
 			glDeleteShader(glShader);
 			throw std::runtime_error("can't compile shader");
@@ -203,6 +257,7 @@ GLuint get_texture(std::string path) {
 		unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 		if (data == nullptr) {
 			std::cout << stbi_failure_reason() << std::endl;
+			throw std::runtime_error(stbi_failure_reason());
 		} else {
 			res = create_texture(width, height, data);
 			free(data);
@@ -277,7 +332,7 @@ void init() {
 	sort(drawables.begin(), drawables.end(), cmp());
 }
 
-RenderTarget create_render_target() {
+RenderTarget create_render_target(GLenum internalFormat, GLenum format) {
 	GLuint framebuffer = 0;
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -287,7 +342,7 @@ RenderTarget create_render_target() {
 
 	glBindTexture(GL_TEXTURE_2D, output_texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 960, 960, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, 960, 960, 0, format, GL_UNSIGNED_BYTE, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -304,9 +359,6 @@ RenderTarget create_render_target() {
 	return RenderTarget{framebuffer, output_texture};
 }
 
-GLuint transparancy_texture;
-GLuint background_texture;
-glm::vec2 raycast_start;
 
 void bind_render_target(RenderTarget* target) {
 	if (target == nullptr) {
@@ -345,23 +397,6 @@ void display(Drawable* object, Program* program_ptr) {
 	glBindTexture(GL_TEXTURE_2D, object->get_texture());
 	glUniform1i(textureLocation, 0);
 
-	if (program_ptr->get_name() == "raycast_2d_f.glsl") {
-		auto playerLocation = glGetUniformLocation(program, "uStartPosition");
-		glUniform2fv(playerLocation, 1, glm::value_ptr(raycast_start));
-
-		auto transparancyTexture = glGetUniformLocation(program, "uTransparency");
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, transparancy_texture);
-		glUniform1i(transparancyTexture, 1);
-		auto backgroundTexture = glGetUniformLocation(program, "uBackground");
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, background_texture);
-		glUniform1i(backgroundTexture, 2);
-	} else if (program_ptr->get_name() == "texture_2d_f.glsl") {
-		// viewMatrixContainer[5] *= -1;
-		// viewMatrixContainer[7] *= -1;
-		glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
-	}
 	object->reg_uniforms(program);
 	
 

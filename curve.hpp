@@ -65,6 +65,7 @@ struct BezierCurve : public render::Drawable {
 		return &render::bezier;
 	}
 	void reg_uniforms(GLuint program) {
+		Drawable::reg_uniforms(program);
 		glUniform2fv(glGetUniformLocation(program, "controlPoints"), 4, points.data());
 	}
 	std::array<float, 8> points;

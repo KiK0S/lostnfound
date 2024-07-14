@@ -4,6 +4,7 @@
 #include "game_loop_system.hpp"
 #include "random.hpp"
 #include "player.hpp"
+#include "minimap.hpp"
 #include "circle.hpp"
 #include "glm/glm/vec2.hpp"
 #include "glm/gtx/norm.hpp"
@@ -18,15 +19,15 @@ struct Course : game_loop::Dynamic, input::Controllable {
 		positions.emplace_back(glm::vec2(0, 0));
 		for (int i = 0; i < n; i++) {
 			positions.emplace_back(glm::vec2(rnd::get_double(-10, 10), rnd::get_double(-10, 10)));
-}
+		}
 		// drawables.emplace_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<triangle::Triangle>(positions[0])));
 		for (int i = 1; i < n + 1; i++) {
-			drawables.push_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<circle::Circle>(positions[i], control_radius)));
+			drawables.push_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<circle::Circle>(positions[i] / 10.0f, control_radius)));
 		}
 	}
 	~Course() {}
 	std::vector<glm::vec2> positions;
-	std::vector<Control> controls;
+	std::vector<std::unique_ptr<minimap::MiniMapObject>> drawables;
 	float control_radius = 0.05;
 	uint32_t current_control = 0;
 

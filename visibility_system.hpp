@@ -18,7 +18,7 @@ struct Background: public sprite::Sprite, game_loop::Dynamic {
 		render::background_texture = get_texture();
 	}
 	virtual render::Program* get_program() {
-		return &render::texture;
+		return &render::texture_screenspace_program;
 	}
 
 };
@@ -78,7 +78,7 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 	}
 	bool have_init = false;
 	void init() {
-		transparency_texture = render::create_render_target();
+		transparency_texture = render::create_render_target(GL_R8, GL_RED);
 		have_init = true;
 	}
 	void update() {
@@ -88,7 +88,7 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 		glClearColor(0.0, 0.3, 0.3, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		for (const auto& circle : circles) {
-			render::display(circle.get(), &render::texture_framebuffer);
+			render::display(circle.get(), &render::texture_screenspace_framebuffer_program);
 		}
 		render::bind_render_target(nullptr);
 		render::transparancy_texture = get_texture();

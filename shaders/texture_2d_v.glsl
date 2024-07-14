@@ -12,7 +12,7 @@ out vec2 vPosition;
 
 void main() {
 	vec2 pos = vec2(aVertexPosition.x, aVertexPosition.y);
-	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(pos, 0, 1);
+	gl_Position = uModelMatrix * vec4(pos, 0, 1);
 	vTextureCoordinate = aTexturePosition;
 	vPosition = vec2(gl_Position.x, gl_Position.y);
 }
