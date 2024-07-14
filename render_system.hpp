@@ -306,7 +306,7 @@ RenderTarget create_render_target() {
 
 GLuint transparancy_texture;
 GLuint background_texture;
-std::vector<float> raycast_start;
+glm::vec2 raycast_start;
 
 void bind_render_target(RenderTarget* target) {
 	if (target == nullptr) {
@@ -347,7 +347,7 @@ void display(Drawable* object, Program* program_ptr) {
 
 	if (program_ptr->get_name() == "raycast_2d_f.glsl") {
 		auto playerLocation = glGetUniformLocation(program, "uStartPosition");
-		glUniform2fv(playerLocation, 1, raycast_start.data());
+		glUniform2fv(playerLocation, 1, glm::value_ptr(raycast_start));
 
 		auto transparancyTexture = glGetUniformLocation(program, "uTransparency");
 		glActiveTexture(GL_TEXTURE1);

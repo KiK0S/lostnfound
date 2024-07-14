@@ -1,4 +1,5 @@
 #define cimg_display 0
+#define GLM_ENABLE_EXPERIMENTAL
 #include "game_loop_system.hpp"
 #include "input_system.hpp"
 #include "render_system.hpp"

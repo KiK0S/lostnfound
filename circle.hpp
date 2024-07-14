@@ -1,12 +1,15 @@
 #pragma once
 #include "render_system.hpp"
+#include "glm/glm/vec2.hpp"
 
 namespace circle {
 
 struct Circle : public render::Drawable {
-	Circle(double x, double y, double r): render::Drawable(), x(x), y(y), r(r) {}
+	Circle(glm::vec2 pos, double r, glm::vec4 color): render::Drawable(), pos(pos), r(r), color(color) {}
+	Circle(glm::vec2 pos, double r): Circle(pos, r, glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}) {}
 	
-	float x, y, r;
+	glm::vec2 pos;
+	float r;
 
 	std::vector<float> get_pos() {
 		return {
@@ -129,12 +132,15 @@ struct Circle : public render::Drawable {
 	};
 	std::vector<float> get_model_matrix() {
 		return {
-			r, 0.0f, 0.0f, x,
-			0.0f, r, 0.0f, y,
+			r, 0.0f, 0.0f, pos.x,
+			0.0f, r, 0.0f, pos.y,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 	};
+	glm::vec4 get_color() {
+		return color;
+	}
 	bool show() {
 		return false;
 	}
@@ -147,6 +153,7 @@ struct Circle : public render::Drawable {
 	std::string get_name() const {
 		return "circle";
 	}
+	glm::vec4 color;
 };
 
 };

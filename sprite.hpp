@@ -64,7 +64,7 @@ namespace sprite {
 			return layer;
 		}
 		bool show() {
-			if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || t - camera::position_y >= 1.2 || camera::position_y - b >= 1.2)
+			if (l - camera::pos.x >= 1.2 || camera::pos.x - r >= 1.2 || t - camera::pos.y >= 1.2 || camera::pos.y - b >= 1.2)
 				return false;
 			return true; 
 		}

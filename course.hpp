@@ -4,33 +4,37 @@
 #include "game_loop_system.hpp"
 #include "random.hpp"
 #include "player.hpp"
+#include "circle.hpp"
+#include "glm/glm/vec2.hpp"
+#include "glm/gtx/norm.hpp"
 
 namespace course {
 
-struct Control {
-	Control(float position_x, float position_y): position_x(position_x), position_y(position_y) {}
-	float position_x;
-	float position_y;
-};
+uint8_t color[4] = {191, 4, 151, 255};
+
 
 struct Course : game_loop::Dynamic, input::Controllable {
 	Course(int n) : game_loop::Dynamic() {
-		controls.emplace_back(Control(0, 0));
+		positions.emplace_back(glm::vec2(0, 0));
 		for (int i = 0; i < n; i++) {
-			controls.emplace_back(Control(rnd::get_double(-10, 10), rnd::get_double(-10, 10)));
+			positions.emplace_back(glm::vec2(rnd::get_double(-10, 10), rnd::get_double(-10, 10)));
+}
+		// drawables.emplace_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<triangle::Triangle>(positions[0])));
+		for (int i = 1; i < n + 1; i++) {
+			drawables.push_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<circle::Circle>(positions[i], control_radius)));
 		}
 	}
 	~Course() {}
+	std::vector<glm::vec2> positions;
 	std::vector<Control> controls;
 	float control_radius = 0.05;
 	uint32_t current_control = 0;
 
 	void update() {
-		if (current_control == controls.size())
+		if (current_control == positions.size())
 			return;
-		float diff_x = player::player.position_x - controls[current_control].position_x;
-		float diff_y = player::player.position_y - controls[current_control].position_y;
-		float d = diff_x * diff_x + diff_y * diff_y;
+		glm::vec2 diff = player::player.pos - positions[current_control];
+		float d = glm::length2(diff);
 		if (d > control_radius)
 			return;
 
@@ -42,9 +46,8 @@ struct Course : game_loop::Dynamic, input::Controllable {
 
 	void handle_user_action(SDL_Event e) {
 		if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-			float diff_x = player::player.position_x - controls[current_control].position_x;
-			float diff_y = player::player.position_y - controls[current_control].position_y;
-			float d = diff_x * diff_x + diff_y * diff_y;
+			glm::vec2 diff = player::player.pos - positions[current_control];
+			float d = glm::length2(diff);
 			std::cout << d << '\n';
 		}
 	}

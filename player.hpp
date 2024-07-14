@@ -4,6 +4,8 @@
 #include "sprite.hpp"
 #include "game_loop_system.hpp"
 #include "camera.hpp"
+#include "glm/glm/vec2.hpp"
+
 namespace player {
 
 
@@ -14,53 +16,49 @@ struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
 		durations["runleft"] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
 	}
 	~Player() {}
-	float position_x = 0;
-	float position_y = 0;
+	glm::vec2 pos{0.0f, 0.0f};
 
 	double velocity = 0.02f;
 
 	void update() {
 
-		double dx = 0;
-		double dy = 0;
+		glm::vec2 d{0.0f, 0.0f};
 		// todo: update to velocity-based
 		// todo: add stamina
 		if (input::get_button_state(SDL_SCANCODE_S)) {
-			dy -= 0.01;
+			d.y -= 0.01;
 		}
 
 		if (input::get_button_state(SDL_SCANCODE_W)) {
-			dy += 0.01;
+			d.y += 0.01;
 		}
 
 		if (input::get_button_state(SDL_SCANCODE_A)) {
-			dx -= 0.01;
+			d.x -= 0.01;
 		}
 
 		if (input::get_button_state(SDL_SCANCODE_D)) {
-			dx += 0.01;
+			d.x += 0.01;
 		}
 		
-		double d = sqrt(dx * dx + dy * dy);
-		double k = d <= velocity ? 1.0 : velocity / d;
-		dx *= k;
-		dy *= k;
+		double len = glm::length(d);
+		double k = len <= velocity ? 1.0 : velocity / len;
+		d *= k;
 		
-		l += dx;
-		r += dx;
-		t += dy;
-		b += dy;
-		position_x += dx;
-		position_y += dy;
+		pos += d;
+		l += d.x;
+		r += d.x;
+		t += d.y;
+		b += d.y;
 
-		if (d == 0) {
+		if (l == 0) {
 			set_state("idle");
-		} else if (dx >= 0) {
+		} else if (d.x >= 0) {
 			set_state("runright");
 		} else {
 			set_state("runleft");
 		}
-		render::raycast_start = {position_x - camera::position_x, position_y - camera::position_y};
+		render::raycast_start = pos - camera::pos;
 	}
 };
 

@@ -17,14 +17,7 @@
 namespace map
 {
 
-std::vector<uint8_t> color_map[] = {
-	{56, 91, 94, 255},
-	{56, 91, 94, 255},
-	{56, 91, 94, 255},
-	{191, 4, 151, 255},
-	// {48, 72, 74, 255},
-	// {115, 86, 8, 255},
-};
+uint8_t color[4] =	{56, 91, 94, 255};
 
 struct MapObject : public sprite::Sprite, visibility::BlockingObject {
 	MapObject(const std::string& name, bool* visible, double x, double y, double width, double height):
