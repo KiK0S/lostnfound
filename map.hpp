@@ -10,6 +10,7 @@
 #include "tilemap.hpp"
 #include "area.hpp"
 #include "CImg.h"
+#include "visibility.hpp"
 #include "spawning_system.hpp"
 
 
@@ -27,10 +28,15 @@ std::vector<uint8_t> color_map[] = {
 
 struct MapObject : public sprite::Sprite, visibility::BlockingObject {
 	MapObject(const std::string& name, bool* visible, double x, double y, double width, double height):
-		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102), visible(visible),
+		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102),
+		visibility::BlockingObject(),
+		visible(visible),
 		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
 	bool* visible;
 	sprite::Sprite full;
+	virtual glm::vec2 get_center_position() {
+		return glm::vec2{(full.l + full.r) / 2, (full.b + full.t) / 2};
+	}
 	bool show() {
 		return *visible;
 	}
@@ -46,7 +52,7 @@ struct Map : public render::Drawable, input::Controllable {
 	int n, m;
 	bool visible = false;
 
-	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), input::Controllable(), curve({}), lake("lake", {
+	Map(int n, int m): n(n), m(m), course(5), render::Drawable(), tilemap(n, m), input::Controllable(), curve({}), lake("lake", {
 		glm::vec2(-3.0f, 0.0f),
 		glm::vec2(-2.5f, -0.1f),
 		glm::vec2(-2.4f, 0.1f),
@@ -64,15 +70,6 @@ struct Map : public render::Drawable, input::Controllable {
 			}	
 		}
 	) {
-		double width = 20.0 / n;
-		double height = 20.0 / m;
-
-		for (int i = -n/2; i < n/2; i++) {
-			tiles.emplace_back(std::vector<std::unique_ptr<Tile>>());
-			for (int j = -m/2; j < m/2; j++) {
-				tiles.back().emplace_back(std::make_unique<Tile>("tile", rnd::get_int(0, 2), i * width, j * height, width, height));
-			}
-		}
 		int treesCnt = 50;
 		int rockCnt = 20;
 

@@ -6,6 +6,7 @@
 #include "game_loop_system.hpp"
 #include "circle.hpp"
 #include "sprite.hpp"
+#include "visibility.hpp"
 #include <string>
 
 namespace visibility {
@@ -24,10 +25,8 @@ struct Background: public sprite::Sprite, game_loop::Dynamic {
 
 struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 	ObstacleMap(): render::Drawable(), game_loop::Dynamic(), background_page("cloud") {
-		for (const auto& obj : map::map.objects) {
-			float cx = (obj->full.l + obj->full.r) / 2.0f; 
-			float cy = (obj->full.b + obj->full.t) / 2.0f; 
-			circles.emplace_back(std::make_unique<circle::Circle>(cx, cy, 0.2));
+		for (const auto& obj : blocking_objects) {
+			circles.emplace_back(std::make_unique<circle::Circle>(obj->get_center_position(), obj->get_radius()));
 		}
 	}
 	render::RenderTarget transparency_texture;
@@ -94,7 +93,6 @@ struct ObstacleMap: public render::Drawable, game_loop::Dynamic {
 		render::bind_render_target(nullptr);
 		render::transparancy_texture = get_texture();
 	}
-
 };
 
 ObstacleMap obstacle_map;
