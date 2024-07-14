@@ -7,6 +7,7 @@
 #include <vector>
 #include "random.hpp"
 #include "curve.hpp"
+#include "tilemap.hpp"
 #include "area.hpp"
 #include "CImg.h"
 #include "spawning_system.hpp"
@@ -24,20 +25,7 @@ std::vector<uint8_t> color_map[] = {
 	// {115, 86, 8, 255},
 };
 
-struct Tile : public sprite::Sprite {
-	Tile(const std::string& name, int tile_type, double x, double y, double width, double height):
-		sprite::Sprite(name + "_" + std::to_string(tile_type), y, x, y + height, x + width, 0), tile_type(tile_type) {}
-	~Tile() {}
-
-	bool show() {
-		if (l - camera::position_x >= 1.2 || camera::position_x - r >= 1.2 || b - camera::position_y >= 1.2 || camera::position_y - t >= 1.2)
-			return false;
-		return true; 
-	}
-	int tile_type;
-};
-
-struct MapObject : public sprite::Sprite {
+struct MapObject : public sprite::Sprite, visibility::BlockingObject {
 	MapObject(const std::string& name, bool* visible, double x, double y, double width, double height):
 		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102), visible(visible),
 		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
@@ -50,8 +38,8 @@ struct MapObject : public sprite::Sprite {
 
 struct Map : public render::Drawable, input::Controllable {
 
-	std::vector<std::vector<std::unique_ptr<Tile>>> tiles;
 	std::vector<std::unique_ptr<MapObject>> objects;
+	tilemap::TileMap tilemap;
 	course::Course course;
 	curve::Curve curve;
 	area::AreaObject lake;
