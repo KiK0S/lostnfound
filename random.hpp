@@ -1,7 +1,6 @@
 
 #pragma once
 #include <random>
-#include "serializable_system.hpp"
 
 namespace rnd {
 
@@ -34,7 +33,7 @@ double getDouble(double min, double max) {
 	return randomGenerator.getInt(min, max);
 }
 
-struct PerlinNoise : public serialization::Serializable, serialization::Deserializable  {
+struct PerlinNoise {
 	PerlinNoise(): n(5), alpha(0.5), omega(0.5) {}
 
 	double f(double x) {
@@ -57,17 +56,17 @@ struct PerlinNoise : public serialization::Serializable, serialization::Deserial
 		return (*this)(x) + (*this)(y);
 	}
 
-	void serialize(std::stringstream& ss) {
-		serialization::serialize(ss, (size_t) n);
-		serialization::serialize(ss, alpha);
-		serialization::serialize(ss, omega);
-	}
+	// void serialize(std::stringstream& ss) {
+	// 	serialization::serialize(ss, (size_t) n);
+	// 	serialization::serialize(ss, alpha);
+	// 	serialization::serialize(ss, omega);
+	// }
 
-	void deserialize(std::string& s) {
-		n = serialization::deserializeInt(s);
-		alpha = serialization::deserializeFloat(s);
-		omega = serialization::deserializeFloat(s);
-	}
+	// void deserialize(std::string& s) {
+	// 	n = serialization::deserializeInt(s);
+	// 	alpha = serialization::deserializeFloat(s);
+	// 	omega = serialization::deserializeFloat(s);
+	// }
 
 	int n;
 	double alpha;
