@@ -4,28 +4,15 @@
 #include <chrono>
 #include <optional>	
 #include <GL/gl.h>
-#include "render_system.hpp"
-#include "game_loop_system.hpp"
+#include "systems/definitions/dynamic_object.hpp"
+#include "systems/definitions/animated_object.hpp"
 
 namespace animation {
 
-struct Animated;
-std::vector<Animated*> animateds;
-
-struct Animated {
-	Animated() {
-		animateds.push_back(this);
-	}
-	virtual ~Animated() {}
-	virtual void update(float dt) = 0;
-	virtual void set_state(std::string state) = 0; 
-	virtual std::string get_state() = 0; 
-};
-
 std::optional<std::chrono::time_point<std::chrono::system_clock>> m_time = {};
 
-struct Animation : public game_loop::Dynamic {
-	Animation(): game_loop::Dynamic() {}
+struct Animation : public dynamic::DynamicObject {
+	Animation(): dynamic::DynamicObject() {}
 	void update() {
 		std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 		if (m_time == std::nullopt) {
@@ -35,7 +22,7 @@ struct Animation : public game_loop::Dynamic {
 		float dt = 1.0f * std::chrono::duration_cast<std::chrono::milliseconds>(now - *m_time).count() / 1000.0f;
 		m_time = now;
 
-		for (auto* animated : animateds) {
+		for (auto* animated : animation::animateds) {
 			animated->update(dt);
 		}
 	}

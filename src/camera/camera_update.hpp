@@ -1,17 +1,17 @@
 #pragma once
 #include <vector>
-#include "player.hpp"
+#include "game_objects/player.hpp"
 #include "camera.hpp"
-#include "game_loop_system.hpp"
+#include "systems/definitions/dynamic_object.hpp"
 #include "glm/gtx/norm.hpp"
 
 namespace camera {
 
-struct CameraUpdate : public game_loop::Dynamic {
-	CameraUpdate(): game_loop::Dynamic() {}
+struct CameraUpdate : public dynamic::DynamicObject {
+	CameraUpdate(): dynamic::DynamicObject() {}
 	~CameraUpdate() {}
 	void update() {
-		glm::vec2 diff = player::player.pos - pos;
+		glm::vec2 diff = player::player.pos - camera.pos;
 		float d = glm::length2(diff);
 		if (d < 0.1)
 			return;
@@ -19,7 +19,7 @@ struct CameraUpdate : public game_loop::Dynamic {
 		if (d > 0.4) {
 			v *= 5;
 		}
-		pos += diff * v;
+		camera.pos += diff * v;
 	}
 };
 

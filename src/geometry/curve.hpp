@@ -1,12 +1,15 @@
 #pragma once
-#include "render_system.hpp"
+#include "systems/definitions/drawable_object.hpp"
+#include "systems/definitions/gpu_program.hpp"
+#include "rendering/programs.hpp"
 #include <memory>
+#include <vector>
 
 namespace curve {
 
 
-struct BezierCurve : public render::Drawable {
-	BezierCurve(std::array<float, 8> points): render::Drawable(), points(points) {}
+struct BezierCurve : public render::DrawableObject {
+	BezierCurve(std::array<float, 8> points): render::DrawableObject(), points(points) {}
 	
 
 	std::vector<float> get_pos() {
@@ -61,11 +64,11 @@ struct BezierCurve : public render::Drawable {
 	std::string get_name() const {
 		return "curve";
 	}
-	render::Program* get_program() {
-		return &render::bezier;
+	shaders::Program* get_program() {
+		return &gpu_programs::bezier_program;
 	}
 	void reg_uniforms(GLuint program) {
-		Drawable::reg_uniforms(program);
+		render::DrawableObject::reg_uniforms(program);
 		glUniform2fv(glGetUniformLocation(program, "controlPoints"), 4, points.data());
 	}
 	std::array<float, 8> points;

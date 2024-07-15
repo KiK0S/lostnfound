@@ -1,18 +1,22 @@
 #pragma once
-#include "render_system.hpp"
-#include "file_system.hpp"
-#include "input_system.hpp"
-#include "animation_system.hpp"
-#include "functional"
+#include "systems/definitions/animated_object.hpp"
+#include "systems/definitions/drawable_object.hpp"
+#include "systems/definitions/controllable_object.hpp"
+#include "systems/render_system.hpp"
+#include "rendering/programs.hpp"
+#include "utils/file_system.hpp"
+#include "camera/camera.hpp"
+#include <functional>
+#include <string>
 
 namespace sprite {
-	struct Sprite : public render::Drawable, input::Controllable {
+	struct Sprite : public render::DrawableObject, input::ControllableObject {
 
-		Sprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f, int layer): name(name), l(l), t(t), r(r), b(b), user_callback(std::move(f)), layer(layer), render::Drawable(), input::Controllable() {}
+		Sprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f, int layer): name(name), l(l), t(t), r(r), b(b), user_callback(std::move(f)), layer(layer), render::DrawableObject(), input::ControllableObject() {}
 		Sprite(std::string name, float l, float t, float r, float b): Sprite(name, l, t, r, b, [](SDL_Event, Sprite*) {}, 1) {}
 		Sprite(std::string name, float l, float t, float r, float b, int layer): Sprite(name, l, t, r, b, [](SDL_Event, Sprite*) {}, layer) {}
 		~Sprite() {}
-		std::vector<float> get_pos() {
+		virtual std::vector<float> get_pos() {
 			return {
 				-1.0f, -1.0f, // Vertex 1: top left
 				1.0f, -1.0f, // Vertex 2: top right
@@ -23,7 +27,10 @@ namespace sprite {
 				-1.0f, 1.0f, // Vertex 5: bottom left
 			};
 		}
-		std::vector<float> get_uv() {
+		virtual shaders::Program* get_program() {
+			return &gpu_programs::raycast_program;
+		}
+		virtual std::vector<float> get_uv() {
 			return {
 				0.0f,  1.0f, // Vertex 1: top left
 				1.0f,  1.0f, // Vertex 2: top right
@@ -43,7 +50,7 @@ namespace sprite {
 		// * (r - l)
 		// [0, r - l]
 		// + l
-		std::vector<float> get_model_matrix() {
+		virtual std::vector<float> get_model_matrix() {
 			return {
 				(r - l) / 2.0f, 0.0f, 0.0f, l + (r - l) / 2.0f,
 				0.0f, (b - t) / 2.0f, 0.0f, t + (b - t) / 2.0f,
@@ -51,20 +58,20 @@ namespace sprite {
 				0.0f, 0.0f, 0.0f, 1.0f
 			};
 		}
-		GLuint get_texture() {
+		virtual GLuint get_texture() {
 			return render::get_texture(file::asset(get_name() + ".png"));
 		}
-		std::string get_name() const {
+		virtual std::string get_name() const {
 			return name;
 		}
 		void handle_user_action(SDL_Event e) {
 			user_callback(e, this);
 		}
-		int get_layer() const {
+		virtual int get_layer() const {
 			return layer;
 		}
-		bool show() {
-			if (l - camera::pos.x >= 1.2 || camera::pos.x - r >= 1.2 || t - camera::pos.y >= 1.2 || camera::pos.y - b >= 1.2)
+		virtual bool show() {
+			if (l - camera::camera.pos.x >= 1.2 || camera::camera.pos.x - r >= 1.2 || t - camera::camera.pos.y >= 1.2 || camera::camera.pos.y - b >= 1.2)
 				return false;
 			return true; 
 		}
@@ -74,9 +81,9 @@ namespace sprite {
 		std::function<void(SDL_Event, Sprite*)> user_callback;
 	};
 
-	struct AnimatedSprite : public Sprite, animation::Animated {
+	struct AnimatedSprite : public Sprite, animation::AnimatedObject {
 
-		AnimatedSprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): Sprite(name, l, t, r, b, std::move(f), 1), animation::Animated() {}
+		AnimatedSprite(std::string name, float l, float t, float r, float b, std::function<void(SDL_Event, Sprite*)>&& f): Sprite(name, l, t, r, b, std::move(f), 1), animation::AnimatedObject() {}
 		AnimatedSprite(std::string name, float l, float t, float r, float b): AnimatedSprite(name, l, t, r, b, [](SDL_Event, Sprite*) {}) {}
 		~AnimatedSprite() {}
 		GLuint get_texture() {

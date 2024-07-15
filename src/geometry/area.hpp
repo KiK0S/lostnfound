@@ -1,14 +1,16 @@
 #pragma once
-#include "render_system.hpp"
-#include "sprite.hpp"
+#include "systems/definitions/drawable_object.hpp"
+#include "rendering/sprite.hpp"
 #include "delaunay-cpp/delaunay.hpp"
-#include "spawning_system.hpp"
+#include "geometry/spawning_system.hpp"
+#include <memory>
+#include "glm/glm/vec4.hpp"
 
 
 namespace area {
 
-struct AreaObject : public render::Drawable {
-	AreaObject(std::string name, std::vector<glm::vec2> points, glm::vec4 color): render::Drawable(), name(name), color(color) {
+struct AreaObject : public render::DrawableObject {
+	AreaObject(std::string name, std::vector<glm::vec2> points, glm::vec4 color): render::DrawableObject(), name(name), color(color) {
 		std::vector<delaunay::Point<float>> data(points.size());
 		for (int i = 0; i < points.size(); i++)
 			data[i] = delaunay::Point<float>(points[i].x, points[i].y);
@@ -24,6 +26,7 @@ struct AreaObject : public render::Drawable {
 			this->points[6 * i + 5] = res.triangles[i].p1.y;
 		}
 	}
+	~AreaObject() {}
 	AreaObject(std::string name, std::vector<glm::vec2> points, glm::vec4 color, std::vector<spawn::SpawningRule> rules): AreaObject(name, points, color) {
 		for (auto rule : rules) {
 			for (int i = 0; i < this->points.size(); i += 6) {
@@ -37,7 +40,9 @@ struct AreaObject : public render::Drawable {
 			}
 		}
 	}
-
+	shaders::Program* get_program() {
+		return &gpu_programs::raycast_program;
+	}
 	std::vector<float> get_pos() {
 		return points;
 	}
@@ -71,7 +76,7 @@ struct AreaObject : public render::Drawable {
 	std::vector<float> points;
 	std::vector<float> uv;
 
-	std::vector<std::unique_ptr<render::Drawable>> point_objects;
+	std::vector<std::unique_ptr<render::DrawableObject>> point_objects;
 };
 
 }

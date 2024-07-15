@@ -9,10 +9,10 @@
 #include <string>
 #include <algorithm>
 #include <stdexcept>
-#include "camera.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "file_system.hpp"
+#include "utils/file_system.hpp"
+#include "systems/definitions/drawable_object.hpp"
 #include "glm/glm/vec4.hpp"
 #include "glm/glm/vec2.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -20,102 +20,10 @@
 
 namespace render {
 
-struct Drawable;
-
-
-GLuint transparancy_texture;
-GLuint background_texture;
-glm::vec2 raycast_start;
-
-struct Program;
-std::vector<Program*> programs;
-struct Program {
-	Program() {
-		programs.push_back(this);
-	}
-	virtual std::string vertex_shader() = 0;
-	virtual std::string fragment_shader() = 0;
-	virtual std::string get_name() = 0;
-	virtual void reg_uniforms(GLuint program_id) = 0;
-};
-
-
-struct TwoShaderProgram : public Program {
-	TwoShaderProgram(std::string path_vertex, std::string path_fragment, std::function<void(GLuint)> reg_uniforms): Program(), name(path_fragment + ":" + path_vertex), reg_uniforms_impl(reg_uniforms) {
-		vertex_source = file::read_file(file::shader(path_vertex));
-		fragment_source = file::read_file(file::shader(path_fragment));
-	}
-	TwoShaderProgram(std::string path_vertex, std::string path_fragment): TwoShaderProgram(path_vertex, path_fragment, [](GLuint){}) {}
-	std::string vertex_shader() {
-		return vertex_source;
-	}
-	std::string fragment_shader() {
-		return fragment_source;
-	}
-	std::string get_name() {
-		return name;
-	}
-	void reg_uniforms(GLuint program_id) {
-		reg_uniforms_impl(program_id);
-	}
-	std::string name;
-	std::string vertex_source;
-	std::string fragment_source;
-	std::function<void(GLuint)> reg_uniforms_impl;
-};
-
-void raycast_uniforms(GLuint program_id) {
-	auto playerLocation = glGetUniformLocation(program_id, "uStartPosition");
-	glUniform2fv(playerLocation, 1, glm::value_ptr(raycast_start));
-
-	auto transparancyTexture = glGetUniformLocation(program_id, "uTransparency");
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, transparancy_texture);
-	glUniform1i(transparancyTexture, 1);
-	auto backgroundTexture = glGetUniformLocation(program_id, "uBackground");
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, background_texture);
-	glUniform1i(backgroundTexture, 2);
-}
-TwoShaderProgram texture_screenspace_program("texture_2d_v.glsl", "texture_2d_f.glsl");
-TwoShaderProgram texture_screenspace_framebuffer_program("texture_framebuffer_2d_v.glsl", "texture_2d_f.glsl");
-TwoShaderProgram raycast("raycast_2d_v.glsl", "raycast_2d_f.glsl", raycast_uniforms);
-TwoShaderProgram bezier("bezier_2d_v.glsl", "bezier_2d_f.glsl");
-
-struct cmp {
-	bool operator()(Drawable* a, Drawable* b) const;
-};
-std::vector<Drawable*> drawables;
-
-struct Drawable {
-	Drawable() {
-		drawables.push_back(this);
-	}
-	virtual ~Drawable() {}
-	virtual std::vector<float> get_pos() = 0;
-	virtual std::vector<float> get_uv() = 0;
-	virtual std::vector<float> get_model_matrix() = 0;
-	virtual int get_layer() const = 0;
-	virtual bool show() { return true; }
-	virtual Program* get_program() { return &raycast; }
-	virtual GLuint get_texture() = 0;
-	virtual std::string get_name() const = 0;
-	virtual void reg_uniforms(GLuint id) {
-		get_program()->reg_uniforms(id);
-	}
-	virtual glm::vec4 get_color() { return glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};	}
-};
-
-bool cmp::operator()(Drawable* a, Drawable* b) const {
-	return a->get_layer() < b->get_layer();
-}
-
-
 struct RenderTarget {
 	GLuint frame_buffer;
 	GLuint output_texture;
 };
-
 
 std::map<std::string, GLuint> program_ids;
 SDL_Window* _window;
@@ -158,7 +66,7 @@ void init(SDL_Window *window) {
 		throw std::runtime_error("Failed to initialize GLEW");
 
 	}
-	for (Program* program_ptr : programs) {
+	for (shaders::Program* program_ptr : shaders::programs) {
 		std::cout << "load_program loading" << std::endl;
 		GLuint vertexShader = load_shader(program_ptr->vertex_shader(), GL_VERTEX_SHADER);
 		GLuint fragmentShader = load_shader(program_ptr->fragment_shader(), GL_FRAGMENT_SHADER);
@@ -283,7 +191,7 @@ void start_frame() {
 
 std::map<std::string, GLuint> vao_data;
 
-void add_to_frame(Drawable* object) {
+void add_to_frame(DrawableObject* object) {
 	if (vao_data.find(object->get_name()) != vao_data.end()) {
 		return;
 	}
@@ -369,26 +277,21 @@ void bind_render_target(RenderTarget* target) {
 }
 
 
-void display(Drawable* object, Program* program_ptr) {
+void display(DrawableObject* object, shaders::Program* program_ptr) {
 	GLuint program = program_ids[program_ptr->get_name()];
 	glUseProgram(program);
 	glBindVertexArray(vao_data[object->get_name()]);
 
-	auto viewLocation = glGetUniformLocation(program, "uViewMatrix");
 	auto projectionLocation = glGetUniformLocation(program, "uProjectionMatrix");
 	auto modelLocation = glGetUniformLocation(program, "uModelMatrix");
 	auto colorLocation = glGetUniformLocation(program, "uColor");
 
-	std::vector<float> viewMatrixContainer = camera::get_matrix(object->get_layer());
-	float* viewMatrix = viewMatrixContainer.data();
-	
 	std::vector<float> modelMatrixContainer = object->get_model_matrix();
 	float* modelMatrix = modelMatrixContainer.data();
 
 	float projectMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
 	glm::vec4 color = object->get_color();
-	glUniformMatrix4fv(viewLocation, 1, GL_TRUE, viewMatrix);
 	glUniformMatrix4fv(projectionLocation, 1, GL_TRUE, projectMatrix);
 	glUniformMatrix4fv(modelLocation, 1, GL_TRUE, modelMatrix);
 	glUniform4fv(colorLocation, 1, glm::value_ptr(color));

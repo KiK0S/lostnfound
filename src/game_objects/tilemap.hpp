@@ -1,6 +1,7 @@
-#include "sprite.hpp"
-#include "camera.hpp"
+#pragma once
 #include <string>
+#include "rendering/sprite.hpp"
+#include "camera/camera.hpp"
 
 namespace tilemap {
 

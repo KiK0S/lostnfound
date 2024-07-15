@@ -17,20 +17,24 @@ FetchContent_MakeAvailable(stb_image)
 add_library(stb_image INTERFACE)
 target_include_directories(stb_image INTERFACE ${stb_image_SOURCE_DIR})
 
-set(GLM_DIR "${CMAKE_SOURCE_DIR}/glm")
+set(GLM_DIR "${CMAKE_SOURCE_DIR}/3rd-party/glm")
 add_subdirectory(${GLM_DIR})
-
 include_directories(${GLM_DIR})
 
+set(DELAUNAY_DIR "${CMAKE_SOURCE_DIR}/3rd-party/delaunay-cpp")
+include_directories(${DELAUNAY_DIR})
+
+include_directories(${CMAKE_SOURCE_DIR}/3rd-party)
 
 set(EXE_SOURCES
-	main.cpp
+	src/main.cpp
 )
 
 add_executable(LostNFound ${EXE_SOURCES})
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 if (EMSCRIPTEN)
 		set(CMAKE_CXX_FLAGS  "-s USE_SDL=2")

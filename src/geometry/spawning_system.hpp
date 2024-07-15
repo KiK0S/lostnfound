@@ -1,7 +1,7 @@
 #pragma once
-#include "random.hpp"
+#include "utils/random.hpp"
 #include "glm/glm/vec2.hpp"
-#include "render_system.hpp"
+#include "systems/definitions/drawable_object.hpp"
 #include <functional>
 #include <vector>
 #include <memory>
@@ -10,7 +10,7 @@ namespace spawn {
 
 struct SpawningRule {
 	double density;
-	std::function<std::unique_ptr<render::Drawable>(glm::vec2)> spawn;
+	std::function<std::unique_ptr<render::DrawableObject>(glm::vec2)> spawn;
 };
 
 glm::vec2 point(glm::vec2 a, glm::vec2 b, glm::vec2 c) {

@@ -1,11 +1,11 @@
 #pragma once
-#include "render_system.hpp"
+#include "systems/definitions/drawable_object.hpp"
 #include "glm/glm/vec2.hpp"
 
 namespace circle {
 
-struct Circle : public render::Drawable {
-	Circle(glm::vec2 pos, double r, glm::vec4 color): render::Drawable(), pos(pos), r(r), color(color) {}
+struct Circle : public render::DrawableObject {
+	Circle(glm::vec2 pos, double r, glm::vec4 color): render::DrawableObject(), pos(pos), r(r), color(color) {}
 	Circle(glm::vec2 pos, double r): Circle(pos, r, glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}) {}
 	
 	glm::vec2 pos;

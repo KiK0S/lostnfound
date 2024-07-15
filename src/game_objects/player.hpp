@@ -1,23 +1,25 @@
 #pragma once
-#include "render_system.hpp"
-#include "input_system.hpp"
-#include "sprite.hpp"
-#include "game_loop_system.hpp"
-#include "camera.hpp"
+#include "systems/input_system.hpp"
+#include "systems/definitions/dynamic_object.hpp"
+#include "systems/definitions/gpu_program.hpp"
+#include "rendering/sprite.hpp"
+#include "rendering/programs.hpp"
+#include "camera/camera.hpp"
 #include "glm/glm/vec2.hpp"
 
 namespace player {
 
 
-struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
-	Player(): game_loop::Dynamic(), sprite::AnimatedSprite("monster", -0.1, -0.1, 0.1, 0.1) {
+struct Player : public dynamic::DynamicObject, sprite::AnimatedSprite, shaders::ShaderUniformsObject {
+	Player(): dynamic::DynamicObject(), sprite::AnimatedSprite("monster", -0.1, -0.1, 0.1, 0.1), ShaderUniformsObject({&gpu_programs::raycast_program}) {
 		durations["idle"] = {0.3, 0.1, 0.1, 0.1};
 		durations["runright"] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
 		durations["runleft"] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
 	}
 	~Player() {}
-	glm::vec2 pos{0.0f, 0.0f};
 
+	glm::vec2 pos{0.0f, 0.0f};
+	glm::vec2 raycast_start;
 	double velocity = 0.02f;
 
 	void update() {
@@ -58,7 +60,11 @@ struct Player : public game_loop::Dynamic, sprite::AnimatedSprite {
 		} else {
 			set_state("runleft");
 		}
-		render::raycast_start = pos - camera::pos;
+		raycast_start = pos - camera::camera.pos;
+	}
+	void reg_uniforms(GLuint program) {
+		auto playerLocation = glGetUniformLocation(program, "uStartPosition");
+		glUniform2fv(playerLocation, 1, glm::value_ptr(raycast_start));
 	}
 };
 

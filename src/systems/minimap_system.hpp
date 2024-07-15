@@ -1,27 +1,20 @@
 #pragma once
-#include "sprite.hpp"
-#include "render_system.hpp"
+#include "rendering/sprite.hpp"
+
+#include "systems/definitions/controllable_object.hpp"
+#include "systems/definitions/drawable_object.hpp"
+#include "systems/definitions/minimap_object.hpp"
+#include "systems/render_system.hpp"
 #include "input_system.hpp"
+#include "rendering/programs.hpp"
 #include <memory>
 
 namespace minimap {
-struct MiniMapObject;
 
-std::vector<MiniMapObject*> minimap_objects;
 
-struct MiniMapObject {
-	MiniMapObject(std::unique_ptr<render::Drawable>&& drawable): drawable(std::move(drawable)) {
-		minimap_objects.push_back(this);
-	}
-	~MiniMapObject() {}
+struct MiniMap: public  render::DrawableObject, input::ControllableObject {
 
-	
-	std::unique_ptr<render::Drawable> drawable;
-};
-
-struct MiniMap: public  render::Drawable, input::Controllable {
-
-	MiniMap(): render::Drawable(), input::Controllable() {}
+	MiniMap(): render::DrawableObject(), input::ControllableObject() {}
 	~MiniMap() {}
 
 	bool visible = false;
@@ -75,8 +68,8 @@ struct MiniMap: public  render::Drawable, input::Controllable {
 
 		glClearColor(1.0, 0.7, 0.3, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		for (const auto& object : minimap_objects) {
-			render::display(object->drawable.get(), &render::texture_screenspace_program);
+		for (const auto& object : minimap::minimap_objects) {
+			render::display(object, &gpu_programs::static_object_program);
 		}
 		std::cout << "display\n";
 
@@ -98,8 +91,8 @@ struct MiniMap: public  render::Drawable, input::Controllable {
 		}
 		return visible;
 	}
-	render::Program* get_program() {
-		return &render::texture_screenspace_program;
+	shaders::Program* get_program() {
+		return &gpu_programs::static_object_program;
 	}
 
 	void handle_user_action(SDL_Event e) {

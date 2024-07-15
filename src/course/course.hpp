@@ -1,11 +1,12 @@
 #pragma once
 
 #include <vector>
-#include "game_loop_system.hpp"
-#include "random.hpp"
-#include "player.hpp"
-#include "minimap.hpp"
-#include "circle.hpp"
+#include "systems/definitions/dynamic_object.hpp"
+#include "systems/definitions/controllable_object.hpp"
+#include "systems/definitions/minimap_object.hpp"
+#include "utils/random.hpp"
+#include "game_objects/player.hpp"
+#include "geometry/circle.hpp"
 #include "glm/glm/vec2.hpp"
 #include "glm/gtx/norm.hpp"
 
@@ -14,16 +15,16 @@ namespace course {
 uint8_t color[4] = {191, 4, 151, 255};
 
 
-struct Course : game_loop::Dynamic, input::Controllable {
-	Course(int n) : game_loop::Dynamic() {
+struct Course : dynamic::DynamicObject, input::ControllableObject {
+	Course(int n) : dynamic::DynamicObject() {
 		positions.emplace_back(glm::vec2(0, 0));
 		for (int i = 0; i < n; i++) {
 			positions.emplace_back(glm::vec2(rnd::get_double(-10, 10), rnd::get_double(-10, 10)));
 		}
 		// drawables.emplace_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<triangle::Triangle>(positions[0])));
-		for (int i = 1; i < n + 1; i++) {
-			drawables.push_back(std::make_unique<minimap::MiniMapObject>(std::make_unique<circle::Circle>(positions[i] / 10.0f, control_radius)));
-		}
+		// for (int i = 1; i < n + 1; i++) {
+		// 	drawables.emplace_back(std::make_unique<minimap::MiniMapObject>(positions[i] / 10.0f, control_radius)));
+		// }
 	}
 	~Course() {}
 	std::vector<glm::vec2> positions;

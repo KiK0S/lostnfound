@@ -2,28 +2,18 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
-#include "game_loop_system.hpp"
+#include "systems/definitions/dynamic_object.hpp"
+#include "systems/definitions/controllable_object.hpp"
 
 namespace input {
-struct Controllable;
-std::vector<Controllable*> controllables;
-
-struct Controllable {
-	Controllable() {
-		controllables.push_back(this);
-	}
-	virtual ~Controllable() {}
-	virtual void handle_user_action(SDL_Event event) = 0;
-};
-
 
 bool get_button_state(SDL_Scancode key) {
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
 	return state[key];
 }
 
-struct Input: public game_loop::Dynamic {
-	Input(): game_loop::Dynamic() {}
+struct Input: public dynamic::DynamicObject {
+	Input(): dynamic::DynamicObject() {}
 	~Input(){}
 	void update() {
 		while (true) {
@@ -36,18 +26,16 @@ struct Input: public game_loop::Dynamic {
 				for (auto* controllable : controllables) {
 					controllable->handle_user_action(event);
 				}
-				// std::cout << "down " << std::string(SDL_GetKeyName(event.key.keysym.sym)) << std::endl;
 				if (std::string(SDL_GetKeyName(event.key.keysym.sym)) == "Q") exit(0);
 				break;
 			}
 			case SDL_KEYUP: {
-				// std::cout << "up " << std::string(SDL_GetKeyName(event.key.keysym.sym)) << std::endl;
 				break;
 			}
 			case SDL_MOUSEWHEEL: {
 				int x, y;
 				SDL_GetMouseState(&x, &y);
-				// handle
+				// handle static_cast<float>(event.motion.x), static_cast<float>(event.motion.y)
 				break;
 			}
 			case SDL_MOUSEMOTION: {

@@ -1,15 +1,16 @@
 #define cimg_display 0
 #define GLM_ENABLE_EXPERIMENTAL
-#include "game_loop_system.hpp"
-#include "input_system.hpp"
-#include "render_system.hpp"
-#include "window_system.hpp"
-#include "file_system.hpp"
-#include "sprite.hpp"
-#include "map.hpp"
-#include "player.hpp"
-#include "camera_update.hpp"
-#include "visibility_system.hpp"
+#include "systems/game_loop_system.hpp"
+#include "systems/input_system.hpp"
+#include "systems/render_system.hpp"
+#include "systems/window_system.hpp"
+#include "utils/file_system.hpp"
+#include "rendering/sprite.hpp"
+#include "world/world.hpp"
+#include "game_objects/player.hpp"
+#include "camera/camera_update.hpp"
+#include "systems/visibility_system.hpp"
+#include "systems/minimap_system.hpp"
 #include <optional>
 
 int main() {

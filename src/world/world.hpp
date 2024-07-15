@@ -1,17 +1,18 @@
 #pragma once
-#include "sprite.hpp"
-#include "render_system.hpp"
-#include "input_system.hpp"
-#include "course.hpp"
 #include <memory>
 #include <vector>
-#include "random.hpp"
-#include "curve.hpp"
-#include "tilemap.hpp"
-#include "area.hpp"
+
 #include "CImg.h"
-#include "visibility.hpp"
-#include "spawning_system.hpp"
+#include "rendering/sprite.hpp"
+#include "systems/render_system.hpp"
+#include "systems/definitions/blocking_object.hpp"
+#include "course/course.hpp"
+
+#include "utils/random.hpp"
+#include "geometry/curve.hpp"
+#include "game_objects/tilemap.hpp"
+#include "geometry/area.hpp"
+#include "geometry/spawning_system.hpp"
 
 
 namespace map
@@ -19,19 +20,26 @@ namespace map
 
 uint8_t color[4] =	{56, 91, 94, 255};
 
-struct MapObject : public sprite::Sprite, visibility::BlockingObject {
+struct MapObject {
 	MapObject(const std::string& name, double x, double y, double width, double height):
-		sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102),
-		visibility::BlockingObject(),
+		// sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102),
+		// visibility::BlockingObject(),
 		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
+	
 	sprite::Sprite full;
-	// minimap::MiniMapObject obj;
-	virtual glm::vec2 get_center_position() {
-		return glm::vec2{(full.l + full.r) / 2.0, (full.b + full.t) / 2.0};
-	}
-	bool show() {
-		return false;
-	}
+	// minimap::MiniMapObject small;
+	// visibility::BlockingObject circle;
+
+	// virtual glm::vec2 get_center_position() {
+	// 	return glm::vec2{(full.l + full.r) / 2.0, (full.b + full.t) / 2.0};
+	// }
+	// bool show() {
+	// 	return false;
+	// }
+	// virtual shaders::Program* get_program() {
+	// 	return &gpu_programs::static_object_program;
+	// }
+
 };
 
 struct Map {

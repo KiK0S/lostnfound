@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <functional>
+#include "systems/definitions/dynamic_object.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -10,19 +11,6 @@
 #endif
 
 namespace game_loop {
-
-struct Dynamic;
-
-std::vector<Dynamic*> dynamics;
-
-struct Dynamic {
-    Dynamic() {
-        dynamics.push_back(this);
-    }
-    virtual ~Dynamic() {}
-    virtual void update() = 0;
-};
-
 
 bool isRunning = true;
 
@@ -37,13 +25,9 @@ void Loop() {
         return;
     }
 
-    for (auto dynamic : dynamics)
+    for (auto dynamic : dynamic::dynamics)
         dynamic->update();
 
-    // Pre-render
-		// ??? 
-
-    // Render
 	render();
     
     #ifdef __EMSCRIPTEN__
@@ -53,8 +37,6 @@ void Loop() {
     }
     #endif
 
-    // Post render
-		// ??
 }
 
 
