@@ -11,7 +11,7 @@ out vec2 vTextureCoordinate;
 out vec2 vPosition;
 
 void main() {
-	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition, 0, 1);
+	gl_Position = uViewMatrix * uModelMatrix * vec4(aVertexPosition, 0, 1);
 	vTextureCoordinate = aTexturePosition;
 	vPosition = vec2(gl_Position);
 }

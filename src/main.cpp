@@ -1,16 +1,14 @@
-#define cimg_display 0
 #define GLM_ENABLE_EXPERIMENTAL
-#include "systems/game_loop_system.hpp"
-#include "systems/input_system.hpp"
-#include "systems/render_system.hpp"
-#include "systems/window_system.hpp"
+#include <GL/glew.h>
+#include "components/all_components.hpp"
+#include "systems/systems_system.hpp"
 #include "utils/file_system.hpp"
-#include "rendering/sprite.hpp"
 #include "world/world.hpp"
 #include "game_objects/player.hpp"
-#include "camera/camera_update.hpp"
-#include "systems/visibility_system.hpp"
-#include "systems/minimap_system.hpp"
+#include "game_objects/raycast_provider.hpp"
+#include "game_objects/lake.hpp"
+#include "game_objects/river.hpp"
+#include "game_objects/following_camera.hpp"
 #include <optional>
 
 int main() {
@@ -18,14 +16,11 @@ int main() {
 	#ifdef __EMSCRIPTEN__
 	window::get_canvas_context();
 	SDL_SetWindowFullscreen(window, 0);
-  SDL_SetWindowSize(window, 960, 480);
+  SDL_SetWindowSize(window, 960, 960);
 	#endif
 	render::init(window);
 	render::init();
-	game_loop::render = [&](){
-		render::start_frame();
-		render::update();
-		render::close_frame();
-	};
+	init::init();
+	scene::main.activate();
 	game_loop::startLoop();
 }

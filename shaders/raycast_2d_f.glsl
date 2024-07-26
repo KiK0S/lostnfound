@@ -1,6 +1,7 @@
 #version 300 es
 precision mediump float;
 
+uniform mat4 uViewMatrix;
 uniform sampler2D uTexture;
 uniform sampler2D uTransparency;
 uniform sampler2D uBackground;
@@ -15,7 +16,7 @@ void main() {
 	int iterations = 100;
 	int i;
 	vec2 endPosition = vPosition;
-	vec2 positionOnLine = vec2(uStartPosition.x, uStartPosition.y);
+	vec2 positionOnLine = vec2(uViewMatrix * vec4(uStartPosition, 0, 1));
 	vec2 dPos = (endPosition - positionOnLine) / float(iterations);
 	int firstOccurence = 0;
 	for (i = 0; i < iterations; i++) {
@@ -33,5 +34,4 @@ void main() {
 		}
 	}
 	outColor = texture(uTexture, vTextureCoordinate);
-	outColor = outColor * uColor;
 }

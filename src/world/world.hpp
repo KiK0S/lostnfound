@@ -2,96 +2,80 @@
 #include <memory>
 #include <vector>
 
-#include "CImg.h"
-#include "rendering/sprite.hpp"
+#include "game_objects/sprite.hpp"
 #include "systems/render_system.hpp"
-#include "systems/definitions/blocking_object.hpp"
-#include "course/course.hpp"
+#include "components/blocking_object.hpp"
+#include "game_objects/course.hpp"
 
 #include "utils/random.hpp"
-#include "geometry/curve.hpp"
 #include "game_objects/tilemap.hpp"
-#include "geometry/area.hpp"
-#include "geometry/spawning_system.hpp"
-
 
 namespace map
 {
 
 uint8_t color[4] =	{56, 91, 94, 255};
 
-struct MapObject {
-	MapObject(const std::string& name, double x, double y, double width, double height):
-		// sprite::Sprite(name, (y + 10) / 20.0 * 1.2 - 0.6 - 0.05, (x + 10) / 20.0 * 1.2 - 0.6 - 0.05, (y + 10) / 20.0 * 1.2 - 0.6 + 0.05, (x + 10) / 20.0 * 1.2 - 0.6 + 0.05, 102),
-		// visibility::BlockingObject(),
-		full(sprite::Sprite(name, y, x, y + height, x + width, 2)) {}
+std::vector<std::unique_ptr<render::DrawableObject>> sprites;
+std::vector<std::unique_ptr<geometry::GeometryObject>> geometries;
+std::vector<std::unique_ptr<scene::SceneObject>> scenes;
+std::vector<std::unique_ptr<minimap::MiniMapEntity>> minimap_drawables;
+std::vector<std::unique_ptr<visibility::BlockingEntity>> blocking_drawables;
+
+std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, double y, double width, double height) {
+	auto full_sprite = std::make_unique<sprite::Sprite>(name, glm::vec2{y - height / 2, x - width / 2}, glm::vec2{y + height / 2, x + width / 2}, 3);
 	
-	sprite::Sprite full;
-	// minimap::MiniMapObject small;
-	// visibility::BlockingObject circle;
+	auto minimap_sprite = std::make_unique<sprite::SpriteCustomProgram>(name, glm::vec2{(y) / 10.0 - 0.05, (x) / 10.0 - 0.05}, glm::vec2{(y) / 10.0 + 0.05, (x) / 10.0 + 0.05}, 3, &shaders::static_object_program);
+	auto mini_entity = std::make_unique<entity::Entity>();
+	mini_entity->add(minimap_sprite.get());
+	mini_entity->bind();
+	auto minimap_object = std::make_unique<minimap::MiniMapEntity>(std::move(mini_entity));
+	auto circle = std::make_unique<geometry::Circle>();
+	auto circle_drawable = std::make_unique<render::SolidDrawable>(circle.get());
+	circle_drawable->transform.scale(glm::vec2{0.2f, 0.2f});
+	circle_drawable->transform.translate(glm::vec2(y, x));
+	
+	auto blocking_entity = std::make_unique<entity::Entity>();
+	blocking_entity->add(circle_drawable.get());
+	blocking_entity->bind();
+	auto blocking_object = std::make_unique<visibility::BlockingEntity>(std::move(blocking_entity));
 
-	// virtual glm::vec2 get_center_position() {
-	// 	return glm::vec2{(full.l + full.r) / 2.0, (full.b + full.t) / 2.0};
-	// }
-	// bool show() {
-	// 	return false;
-	// }
-	// virtual shaders::Program* get_program() {
-	// 	return &gpu_programs::static_object_program;
-	// }
+	auto main_scene = std::make_unique<scene::SceneObject>("main");
+	auto e = std::make_unique<entity::Entity>();
+	e->add(full_sprite.get());
+	e->add(minimap_object.get());
+	e->add(blocking_object.get());
+	e->add(main_scene.get());
+	e->bind();
+	sprites.push_back(std::move(full_sprite));
+	sprites.push_back(std::move(minimap_sprite));
+	sprites.push_back(std::move(circle_drawable));
+	scenes.push_back(std::move(main_scene));
+	minimap_drawables.push_back(std::move(minimap_object));
+	blocking_drawables.push_back(std::move(blocking_object));
+	geometries.push_back(std::move(circle));
 
-};
+	return e;
+}
 
-struct Map {
+struct World {
 
-	std::vector<std::unique_ptr<MapObject>> objects;
+	std::vector<std::unique_ptr<entity::Entity>> objects;
 	tilemap::TileMap tilemap;
-	course::Course course;
-	curve::Curve curve;
-	area::AreaObject lake;
 	int n, m;
 
-	Map(int n, int m): n(n), m(m), course(5), tilemap(n, m), curve({}), lake("lake", {
-		glm::vec2(-3.0f, 0.0f),
-		glm::vec2(-2.5f, -0.1f),
-		glm::vec2(-2.4f, 0.1f),
-		glm::vec2(-1.0f, -0.3f),
-		glm::vec2(-0.75f, -0.75f),
-		glm::vec2(-1.0f, -2.0f),
-		glm::vec2(-2.5f, -1.3f)
-	}, glm::vec4{0.02f, 0.1f, 0.8f, 1.0f}, 
-		{
-			spawn::SpawningRule{
-				0.7,
-				[](glm::vec2 pos) {
-					return std::make_unique<sprite::Sprite>("duck", pos.x - 0.1, pos.y - 0.1, pos.x + 0.1, pos.y + 0.1, 2);
-				}
-			}	
-		}
-	) {
+	World(int n, int m): n(n), m(m), tilemap(n, m) {
 		int treesCnt = 50;
 		int rockCnt = 20;
 
 		for (int i = 0; i < treesCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("tree", rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.4, 0.4));
+			objects.emplace_back(map_object("tree", rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.4, 0.4));
 		}
 		for (int i = 0; i < rockCnt; i++) {
-			objects.emplace_back(std::make_unique<MapObject>("rock", rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.3, 0.3));
+			objects.emplace_back(map_object("rock", rnd::get_double(-10, 10), rnd::get_double(-10, 10), 0.3, 0.3));
 		}
-
-		curve = curve::Curve({-0.75f, -0.75f,
-			-0.25f,  1.0f,
-			0.25f, -1.0f,
-			0.75f,  0.0f,
-			1.0f, 0.0f,
-			1.25f, -0.5f,
-			1.7f, 2.0f,
-			1.8f, 1.0f,
-			1.6f, 0.8f,
-			1.5f, 0.9f});
 	}
 };
 
-Map map(100, 100);
+World world(100, 100);
 
 } // namespace map

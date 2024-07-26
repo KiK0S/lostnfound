@@ -2,8 +2,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
-#include "systems/definitions/dynamic_object.hpp"
-#include "systems/definitions/controllable_object.hpp"
+#include "components/dynamic_object.hpp"
+#include "components/controllable_object.hpp"
 
 namespace input {
 

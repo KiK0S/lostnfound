@@ -3,9 +3,8 @@
 #include <vector>
 #include <chrono>
 #include <optional>	
-#include <GL/gl.h>
-#include "systems/definitions/dynamic_object.hpp"
-#include "systems/definitions/animated_object.hpp"
+#include "components/dynamic_object.hpp"
+#include "components/animated_object.hpp"
 
 namespace animation {
 

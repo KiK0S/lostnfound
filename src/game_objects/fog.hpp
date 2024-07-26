@@ -1,21 +1,33 @@
 #pragma once
-#include "rendering/sprite.hpp"
-#include "systems/definitions/gpu_program.hpp"
-#include "rendering/programs.hpp"
+#include "game_objects/sprite.hpp"
+#include "components/gpu_program.hpp"
+#include "components/textured_object.hpp"
+#include "components/init_object.hpp"
 #include <GL/gl.h>
 
-struct Background: public sprite::Sprite, shaders::ShaderUniformsObject {
-	Background(const std::string& name): sprite::Sprite(name, -1.0f, -1.0f, 1.0f, 1.0f, -1), shaders::ShaderUniformsObject({&gpu_programs::raycast_program}) {}
+namespace fog {
+
+struct Background: public shaders::ShaderUniformsObject {
+	Background(): shaders::ShaderUniformsObject({&shaders::raycast_program}) {}
 
 	void reg_uniforms(GLuint program) {
+		entity::Entity* e = get_entity();
+		texture::TexturedObject* t = e->get<texture::TexturedObject>();
 		auto backgroundTexture = glGetUniformLocation(program, "uBackground");
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, get_texture());
+		glBindTexture(GL_TEXTURE_2D, t->get_texture());
 		glUniform1i(backgroundTexture, 2);
 	}
-
-	shaders::Program* get_program() {
-		return &gpu_programs::static_object_program;
-	}
-
 };
+
+Background background_uniform;
+sprite::SpriteCustomProgram background_sprite("cloud", {-1.0f, -1.0f}, {1.0f, 1.0f}, 0, &shaders::static_object_program);
+entity::Entity background;
+
+void init() {
+	background.add(&background_sprite)
+						.add(&background_uniform).bind();
+}
+
+init::CallbackOnStart background_init(&init);
+}

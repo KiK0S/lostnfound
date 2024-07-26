@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include <functional>
-#include "systems/definitions/dynamic_object.hpp"
+#include "components/dynamic_object.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -13,8 +13,6 @@
 namespace game_loop {
 
 bool isRunning = true;
-
-std::function<void()> render;
 
 void Loop() {
     #ifdef __EMSCRIPTEN__
@@ -27,8 +25,6 @@ void Loop() {
 
     for (auto dynamic : dynamic::dynamics)
         dynamic->update();
-
-	render();
     
     #ifdef __EMSCRIPTEN__
     } catch(...) {

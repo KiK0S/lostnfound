@@ -1,159 +1,113 @@
 #pragma once
-#include "systems/definitions/drawable_object.hpp"
-#include "glm/glm/vec2.hpp"
+#include "components/geometry_object.hpp"
+#include <vector>
+#include <glm/vec2.hpp>
 
-namespace circle {
+namespace geometry {
 
-struct Circle : public render::DrawableObject {
-	Circle(glm::vec2 pos, double r, glm::vec4 color): render::DrawableObject(), pos(pos), r(r), color(color) {}
-	Circle(glm::vec2 pos, double r): Circle(pos, r, glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}) {}
-	
-	glm::vec2 pos;
-	float r;
+struct Circle : public geometry::GeometryObject {
+    Circle(): geometry::GeometryObject() {}
 
-	std::vector<float> get_pos() {
-		return {
-		0.000000f, 0.000000f,
-		0.923880f, 0.382683f,
-		1.000000f, 0.000000f,
+    std::vector<glm::vec2> get_pos() {
+        return {
+            // First triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{1.0f, 0.0f},
+            glm::vec2{0.92388f, 0.382683f},
 
-		0.000000f, 0.000000f,
-		0.707107f, 0.707107f,
-		0.923880f, 0.382683f,
+            // Second triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.92388f, 0.382683f},
+            glm::vec2{0.707107f, 0.707107f},
 
-		0.000000f, 0.000000f,
-		0.382683f, 0.923880f,
-		0.707107f, 0.707107f,
+            // Third triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.707107f, 0.707107f},
+            glm::vec2{0.382683f, 0.92388f},
 
-		0.000000f, 0.000000f,
-		0.000000f, 1.000000f,
-		0.382683f, 0.923880f,
+            // Fourth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.382683f, 0.92388f},
+            glm::vec2{0.0f, 1.0f},
 
-		0.000000f, 0.000000f,
-		-0.382683f, 0.923880f,
-		0.000000f, 1.000000f,
+            // Fifth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.0f, 1.0f},
+            glm::vec2{-0.382683f, 0.92388f},
 
-		0.000000f, 0.000000f,
-		-0.707107f, 0.707107f,
-		-0.382683f, 0.923880f,
+            // Sixth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.382683f, 0.92388f},
+            glm::vec2{-0.707107f, 0.707107f},
 
-		0.000000f, 0.000000f,
-		-0.923880f, 0.382683f,
-		-0.707107f, 0.707107f,
+            // Seventh triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.707107f, 0.707107f},
+            glm::vec2{-0.92388f, 0.382683f},
 
-		0.000000f, 0.000000f,
-		-1.000000f, 0.000000f,
-		-0.923880f, 0.382683f,
+            // Eighth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.92388f, 0.382683f},
+            glm::vec2{-1.0f, 0.0f},
 
-		0.000000f, 0.000000f,
-		-0.923880f, -0.382683f,
-		-1.000000f, 0.000000f,
+            // Ninth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-1.0f, 0.0f},
+            glm::vec2{-0.92388f, -0.382683f},
 
-		0.000000f, 0.000000f,
-		-0.707107f, -0.707107f,
-		-0.923880f, -0.382683f,
+            // Tenth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.92388f, -0.382683f},
+            glm::vec2{-0.707107f, -0.707107f},
 
-		0.000000f, 0.000000f,
-		-0.382683f, -0.923880f,
-		-0.707107f, -0.707107f,
+            // Eleventh triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.707107f, -0.707107f},
+            glm::vec2{-0.382683f, -0.92388f},
 
-		0.000000f, 0.000000f,
-		0.000000f, -1.000000f,
-		-0.382683f, -0.923880f,
+            // Twelfth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{-0.382683f, -0.92388f},
+            glm::vec2{0.0f, -1.0f},
 
-		0.000000f, 0.000000f,
-		0.382683f, -0.923880f,
-		0.000000f, -1.000000f,
+            // Thirteenth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.0f, -1.0f},
+            glm::vec2{0.382683f, -0.92388f},
 
-		0.000000f, 0.000000f,
-		0.707107f, -0.707107f,
-		0.382683f, -0.923880f,
+            // Fourteenth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.382683f, -0.92388f},
+            glm::vec2{0.707107f, -0.707107f},
 
-		0.000000f, 0.000000f,
-		0.923880f, -0.382683f,
-		0.707107f, -0.707107f,
+            // Fifteenth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.707107f, -0.707107f},
+            glm::vec2{0.92388f, -0.382683f},
 
-		0.000000f, 0.000000f,
-		1.000000f, 0.000000f,
-		0.923880f, -0.382683f
-		};
-	}
+            // Sixteenth triangle
+            glm::vec2{0.0f, 0.0f},
+            glm::vec2{0.92388f, -0.382683f},
+            glm::vec2{1.0f, 0.0f}
+        };
+    }
 
-	std::vector<float> get_uv() {
-		return {
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f};
-	};
-	std::vector<float> get_model_matrix() {
-		return {
-			r, 0.0f, 0.0f, pos.x,
-			0.0f, r, 0.0f, pos.y,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
-	};
-	glm::vec4 get_color() {
-		return color;
-	}
-	bool show() {
-		return false;
-	}
-	GLuint get_texture() {
-		return render::get_texture("");
-	};
-	int get_layer() const {
-		return 2;
-	}
-	std::string get_name() const {
-		return "circle";
-	}
-	glm::vec4 color;
+    std::vector<glm::vec2> get_uv() {
+        std::vector<glm::vec2> uv_coords(48, glm::vec2{0.0f, 0.0f});
+        return uv_coords;
+    }
+
+    std::string get_name() const {
+        return "circle";
+    }
+
+    void bind(entity::Entity*) {}
+
+    int get_size() {
+        return 48;
+    }
 };
 
-};
+Circle circle;
+
+}

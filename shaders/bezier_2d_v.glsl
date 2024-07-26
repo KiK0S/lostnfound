@@ -7,6 +7,7 @@ uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uProjectionMatrix;
 uniform vec2 controlPoints[4];
+uniform bool toFramebuffer;
 
 out vec2 bezierPos;
 
@@ -39,7 +40,16 @@ void main()
 	vec2 normal = normalize(vec2(-tangent.y, tangent.x));
 
 	// Adjust the Bézier position along the normal
-	bezierPos += 0.01 * aPos.y * normal;
-	
-	gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(bezierPos, 0.0, 1.0);
+	float width = 0.02;
+	if (toFramebuffer) {
+		width = 0.1;
+	}
+	bezierPos += width * aPos.y * normal;
+
+	gl_Position = uModelMatrix * vec4(bezierPos, 0.0, 1.0);
+	if (toFramebuffer) {
+		gl_Position.y *= -1.0;
+	} else {
+		gl_Position = uViewMatrix * gl_Position;
+	}
 }
