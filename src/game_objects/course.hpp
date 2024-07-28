@@ -79,7 +79,7 @@ struct CourseUpdate: public dynamic::DynamicObject {
 	void update() {
 		if (course.current_control == course.positions.size())
 			return;
-		glm::vec2 diff = player::get_player()->get<transform::TransformObject>()->get_pos() - course.positions[course.current_control];
+		glm::vec2 diff = player::player.get<transform::TransformObject>()->get_pos() - course.positions[course.current_control];
 		float d = glm::length2(diff);
 		if (d > course.control_radius)
 			return;
@@ -96,7 +96,7 @@ struct CourseHint: public input::ControllableObject {
 	CourseHint(): input::ControllableObject() {}
 	void handle_user_action(SDL_Event e) {
 		if (e.key.keysym.scancode == SDL_SCANCODE_E) {
-			glm::vec2 diff = player::get_player()->get<transform::TransformObject>()->get_pos() - course.positions[course.current_control];
+			glm::vec2 diff = player::player.get<transform::TransformObject>()->get_pos() - course.positions[course.current_control];
 			float d = glm::length2(diff);
 			std::cout << d << '\n';
 		}

@@ -5,7 +5,6 @@
 #include "utils/file_system.hpp"
 #include "world/world.hpp"
 #include "game_objects/player.hpp"
-#include "game_objects/raycast_provider.hpp"
 #include "game_objects/lake.hpp"
 #include "game_objects/river.hpp"
 #include "game_objects/following_camera.hpp"

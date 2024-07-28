@@ -3,7 +3,7 @@
 #include "components/drawable_object.hpp"
 #include "components/gpu_program.hpp"
 #include "components/controllable_object.hpp"
-#include "game_objects/following_camera.hpp"
+#include "game_objects/camera.hpp"
 #include "systems/render_system.hpp"
 #include "systems/easy_drawable_system.hpp"
 #include "systems/geometry_system.hpp"
