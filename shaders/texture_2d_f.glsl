@@ -10,5 +10,5 @@ in vec2 vPosition;
 out vec4 outColor;
 void main() {
 	outColor = texture(uTexture, vTextureCoordinate);
-	outColor *= vec4(1.0, 1.0, 1.0, 1.0);
+	outColor *= uColor;
 }

@@ -2,6 +2,7 @@
 #include "game_objects/sprite.hpp"
 #include "systems/input_system.hpp"
 #include "components/entity_system.hpp"
+#include "systems/touchscreen_system.hpp"
 #include "components/dynamic_object.hpp"
 #include "components/stateful_object.hpp"
 #include "components/gpu_program.hpp"
@@ -36,6 +37,9 @@ struct KeyboardMovement : public dynamic::DynamicObject {
 		if (input::get_button_state(SDL_SCANCODE_D)) {
 			d.x += 0.01;
 		}
+
+		d += touchscreen::touchscreen_system.joystick_info;
+
 		
 		double len = glm::length(d);
 		double k = len <= velocity ? 1.0 : velocity / len;

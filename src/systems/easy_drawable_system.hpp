@@ -1,6 +1,7 @@
 #pragma once
 #include "components/drawable_object.hpp"
 #include "systems/texture_system.hpp"
+#include "systems/color_system.hpp"
 
 namespace render {
 
@@ -65,6 +66,9 @@ struct SolidDrawable: public render::DrawableObject {
 	virtual shaders::Program* get_program() {
 		return program;
 	}
+	virtual color::ColoredObject* get_color() {
+		return color;
+	}
 
 	virtual void bind(entity::Entity* entity) {
 		get_geometry()->bind(entity);
@@ -76,5 +80,6 @@ struct SolidDrawable: public render::DrawableObject {
 	layers::ConstLayer layer;
 	ModelMatrix model_matrix;
 	CombinedUniforms uniforms;
+	color::ColoredObject* color = &color::no_color;
 };
 }

@@ -7,6 +7,7 @@
 #include "systems/render_system.hpp"
 #include "systems/easy_drawable_system.hpp"
 #include "systems/geometry_system.hpp"
+#include "systems/color_system.hpp"
 #include "utils/file_system.hpp"
 #include <functional>
 #include <string>
@@ -28,6 +29,9 @@ namespace sprite {
 		}
 		virtual layers::LayeredObject* get_layer() {
 			return &layer;
+		}
+		virtual color::ColoredObject* get_color() {
+			return &color::no_color;
 		}
 		virtual texture::TexturedObject* get_texture() {
 			return &texture;

@@ -47,6 +47,9 @@ minimap::MiniMapEntity lake_minimap(std::move(mini_lake));
 void init() {
 	std::cout << "init player\n";
 	lake_mini_drawable.transform.scale(glm::vec2{0.1f, 0.1f});
+	lake_mini_drawable.color = &color::blue;
+	lake_drawable.color = &color::blue;
+
 	lake_minimap.e->add(&lake_mini_drawable);
 	lake_minimap.e->bind();
 	lake.add(&lake_drawable)

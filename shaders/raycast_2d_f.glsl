@@ -33,5 +33,5 @@ void main() {
 			}
 		}
 	}
-	outColor = texture(uTexture, vTextureCoordinate);
+	outColor = uColor * texture(uTexture, vTextureCoordinate);
 }

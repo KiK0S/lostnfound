@@ -38,6 +38,9 @@ struct Curve {
 		auto mini_drawable = std::make_unique<render::SolidDrawable>(patch.get(), &shaders::bezier_program);
 		auto scened = std::make_unique<scene::SceneObject>("main");
 		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
+		mini_drawable->color = &color::blue;
+		drawable->color = &color::blue;
+
 		drawable->uniforms.add(patch.get());
 		mini_drawable->uniforms.add(patch.get());
 		mini_e->add(mini_drawable.get());

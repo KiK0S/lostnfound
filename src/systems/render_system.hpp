@@ -193,6 +193,9 @@ void display(DrawableObject* object, shaders::Program* program_ptr) {
 		glBindTexture(GL_TEXTURE_2D, object->get_texture()->get_texture());
 		glUniform1i(textureLocation, 0);
 
+		auto colorLocation = glGetUniformLocation(program, "uColor");
+		glUniform4fv(colorLocation, 1, glm::value_ptr(object->get_color()->get_color()));
+
 		program_ptr->reg_uniforms(program);
 		object->get_uniform()->reg_uniforms(program);
 		

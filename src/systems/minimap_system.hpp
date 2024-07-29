@@ -77,6 +77,9 @@ struct MiniMap: public render::DrawableObject {
 	virtual shaders::ShaderUniformsObject* get_uniform() {
 		return &uniforms;
 	}
+	virtual color::ColoredObject* get_color() {
+		return &color::no_color;
+	}
 
 	bool visible = false;
 	virtual bool hide() {

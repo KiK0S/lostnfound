@@ -7,6 +7,7 @@
 #include "components/transform_object.hpp"
 #include "components/layered_object.hpp"
 #include "components/textured_object.hpp"
+#include "components/color_object.hpp"
 #include "components/component.hpp"
 
 namespace render {
@@ -24,6 +25,10 @@ struct DrawableObject: public components::Component {
 	virtual transform::TransformObject* get_transform() {
 		entity::Entity* e = get_entity();
 		return e->get<transform::TransformObject>();
+	}
+	virtual color::ColoredObject* get_color() {
+		entity::Entity* e = get_entity();
+		return e->get<color::ColoredObject>();
 	}
 	virtual layers::LayeredObject* get_layer() {
 		entity::Entity* e = get_entity();
@@ -51,6 +56,5 @@ struct DrawableObject: public components::Component {
 		get_layer()->bind(entity);
 		get_transform()->bind(entity);
 	}
-	virtual glm::vec4 get_color() { return glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};	}
 };
 }

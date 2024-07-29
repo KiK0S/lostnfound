@@ -12,7 +12,6 @@
 
 namespace course {
 
-uint8_t color[4] = {191, 4, 151, 255};
 
 
 struct Course {
@@ -36,6 +35,7 @@ struct Course {
 		auto mini_drawable = std::make_unique<render::SolidDrawable>(g, &shaders::static_object_program);
 		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
 		mini_drawable->transform.translate(glm::vec2{pos.x * 0.1f, pos.y * 0.1f});
+		mini_drawable->color = &color::pink;
 		mini_e->add(mini_drawable.get());
 		mini_e->bind();
 		auto minimaped = std::make_unique<minimap::MiniMapEntity>(std::move(mini_e));
@@ -53,6 +53,7 @@ struct Course {
 		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
 		mini_drawable->uniforms.add(patch.get());
 		mini_e->add(mini_drawable.get());
+		mini_drawable->color = &color::pink;
 		mini_e->bind();
 		auto minimaped = std::make_unique<minimap::MiniMapEntity>(std::move(mini_e));
 		auto e = std::make_unique<entity::Entity>();
