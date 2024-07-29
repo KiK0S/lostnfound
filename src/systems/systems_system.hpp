@@ -11,3 +11,4 @@
 #include "systems/texture_system.hpp"
 #include "systems/gpu_program_system.hpp"
 #include "systems/easy_drawable_system.hpp"
+#include "systems/touchscreen_system.hpp"
