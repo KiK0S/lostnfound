@@ -5,6 +5,7 @@
 #include <map>
 #include "components/dynamic_object.hpp"
 #include "components/controllable_object.hpp"
+#include "utils/exit.hpp"
 
 namespace input {
 
@@ -34,10 +35,7 @@ struct Input: public dynamic::DynamicObject {
 			}
 			switch (event.type) {
 			case SDL_KEYDOWN: {
-				for (auto* controllable : controllables) {
-					controllable->handle_user_action(event);
-				}
-				if (std::string(SDL_GetKeyName(event.key.keysym.sym)) == "Q") exit(0);
+				if (std::string(SDL_GetKeyName(event.key.keysym.sym)) == "Q") game_over::success();
 				break;
 			}
 			case SDL_KEYUP: {
