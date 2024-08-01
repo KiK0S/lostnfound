@@ -17,7 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update -y && sudo apt-get install -y libfreetype6-dev 
+        sudo apt-get update -y && sudo apt-get install -y pkg-config libfreetype6-dev 
         ls /usr/include/freetype2
     
     - name: Install Emscripten
@@ -36,7 +36,7 @@ jobs:
         cd ..
         mkdir build
         cd build
-        emcmake cmake ..
+        emcmake cmake -DCMAKE_PREFIX_PATH=/usr/include/freetype2 ..
         emmake make
 
     - name: Deploy to GitHub Pages
