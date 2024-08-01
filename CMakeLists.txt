@@ -29,8 +29,7 @@ include_directories(${GLM_DIR})
 set(DELAUNAY_DIR "${CMAKE_SOURCE_DIR}/3rd-party/delaunay-cpp")
 include_directories(${DELAUNAY_DIR})
 
-
-include_directories(/usr/include/freetype2  -I/usr/local/include/freetype2  -I/usr/include/libpng16)
+set(FREETYPE_INCLUDE_DIRS /usr/include/freetype2)
 set(freetype-gl_BUILD_APIDOC OFF)
 set(freetype-gl_BUILD_DEMOS OFF)
 set(freetype-gl_BUILD_TESTS OFF)
@@ -41,6 +40,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl)
 
 include_directories(${CMAKE_SOURCE_DIR}/3rd-party)
 include_directories(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl/build)
+include_directories(/usr/include/freetype2  -I/usr/local/include/freetype2  -I/usr/include/libpng16)
 
 
 set(EXE_SOURCES
