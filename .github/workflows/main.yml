@@ -18,6 +18,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update -y && sudo apt-get install -y libfreetype6-dev 
+        ls /usr/include/freetype2
     
     - name: Install Emscripten
       run: |
