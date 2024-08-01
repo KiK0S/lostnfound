@@ -4,3 +4,6 @@
 [submodule "delaunay-cpp"]
 	path = 3rd-party/delaunay-cpp
 	url = git@github.com:jbegaint/delaunay-cpp.git
+[submodule "3rd-party/freetype-gl"]
+	path = 3rd-party/freetype-gl
+	url = git@github.com:rougier/freetype-gl.git
