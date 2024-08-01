@@ -36,6 +36,7 @@ set(freetype-gl_BUILD_DEMOS OFF)
 set(freetype-gl_BUILD_TESTS OFF)
 set(freetype-gl_OFF_SCREEN ON)
 set(freetype-gl_WITH_GLEW OFF)
+set(freetype-gl_WITH_GLEW_DEFAULT OFF)
 set(freetype-gl_BUILD_MAKEFONT OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl)
 
