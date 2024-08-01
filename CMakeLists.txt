@@ -4,6 +4,11 @@ set (CMAKE_CXX_STANDARD 17)
 
 project(LostNFound VERSION 0.0.0)
 
+if (EMSCRIPTEN)
+	set(CMAKE_CXX_FLAGS  "-s USE_SDL=2 -s USE_ZLIB=1 -s USE_FREETYPE=1")	
+	add_compile_options("-Wno-implicit-function-declaration")	
+endif()
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -24,10 +29,28 @@ include_directories(${GLM_DIR})
 set(DELAUNAY_DIR "${CMAKE_SOURCE_DIR}/3rd-party/delaunay-cpp")
 include_directories(${DELAUNAY_DIR})
 
+set(freetype-gl_BUILD_APIDOC OFF)
+set(freetype-gl_BUILD_DEMOS OFF)
+set(freetype-gl_BUILD_TESTS OFF)
+set(freetype-gl_OFF_SCREEN ON)
+set(freetype-gl_WITH_GLEW OFF)
+set(freetype-gl_BUILD_MAKEFONT OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl)
+
 include_directories(${CMAKE_SOURCE_DIR}/3rd-party)
+include_directories(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl/build)
+include_directories(/usr/include/freetype2  -I/usr/local/include/freetype2  -I/usr/include/libpng16)
+
 
 set(EXE_SOURCES
 	src/main.cpp
+	3rd-party/freetype-gl/texture-atlas.c
+	3rd-party/freetype-gl/texture-font.c
+	3rd-party/freetype-gl/ftgl-utils.c
+	3rd-party/freetype-gl/utf8-utils.c
+	3rd-party/freetype-gl/distance-field.c
+	3rd-party/freetype-gl/edtaa3func.c
+	3rd-party/freetype-gl/vector.c
 )
 
 add_executable(LostNFound ${EXE_SOURCES})
@@ -37,7 +60,6 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 if (EMSCRIPTEN)
-		set(CMAKE_CXX_FLAGS  "-s USE_SDL=2")
 		SET(CMAKE_EXE_LINKER_FLAGS "-s LLD_REPORT_UNDEFINED -sNO_DISABLE_EXCEPTION_CATCHING -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 --preload-file ${PROJECT_SOURCE_DIR}/assets@/assets --preload-file ${PROJECT_SOURCE_DIR}/shaders@/shaders")
 		set_target_properties(LostNFound PROPERTIES RUNTIME_OUTPUT_DIRECTORY build)
 		configure_file(${PROJECT_SOURCE_DIR}/index.html ${PROJECT_BINARY_DIR}/build/index.html COPYONLY)
@@ -51,4 +73,5 @@ endif()
 
 target_link_libraries(LostNFound PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(LostNFound PRIVATE stb_image)
+target_link_libraries(LostNFound PRIVATE freetype)
 
