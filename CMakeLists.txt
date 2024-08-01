@@ -30,6 +30,7 @@ set(DELAUNAY_DIR "${CMAKE_SOURCE_DIR}/3rd-party/delaunay-cpp")
 include_directories(${DELAUNAY_DIR})
 
 set(FREETYPE_INCLUDE_DIRS /usr/include/freetype2)
+set(FREETYPE_LIBRARY /usr/lib/x86_64-linux-gnu/libfreetype.so)
 set(freetype-gl_BUILD_APIDOC OFF)
 set(freetype-gl_BUILD_DEMOS OFF)
 set(freetype-gl_BUILD_TESTS OFF)
