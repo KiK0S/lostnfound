@@ -52,6 +52,7 @@ struct MiniMapUniforms: public shaders::ShaderUniformsObject {
 	void reg_uniforms(GLuint p) {
 		glUniform1i(glGetUniformLocation(p, "toView"), false);
 	}
+	void bind(entity::Entity* e) {}
 };
 
 struct MiniMap: public render::DrawableObject {

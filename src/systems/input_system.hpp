@@ -27,7 +27,6 @@ struct Input: public dynamic::DynamicObject {
 	~Input(){}
 	void update() {
 		is_pressed.clear();
-		touch = {0.0f, 0.0f};
 		while (true) {
 			SDL_Event event;
 			if (SDL_PollEvent(&event) == 0) {
@@ -35,6 +34,7 @@ struct Input: public dynamic::DynamicObject {
 			}
 			switch (event.type) {
 			case SDL_KEYDOWN: {
+				fire_event(event);
 				if (std::string(SDL_GetKeyName(event.key.keysym.sym)) == "Q") game_over::success();
 				break;
 			}
@@ -59,16 +59,25 @@ struct Input: public dynamic::DynamicObject {
 				break;
 			}
 			case SDL_FINGERDOWN:
-			case SDL_FINGERMOTION:
-			case SDL_FINGERUP: {
+			case SDL_FINGERMOTION: {
 				double x = event.tfinger.x;
 				double y = event.tfinger.y;
 				touch = glm::vec2(x, y);
 				break;
 			}
+			case SDL_FINGERUP: {
+				touch = {0.0f, 0.0f};
+				break;
+			}
 			case SDL_QUIT:
 				exit(0);
 			}
+		}
+	}
+
+	void fire_event(SDL_Event event) {
+		for (auto* controllable : controllables) {
+			controllable->handle_user_action(event);
 		}
 	}
 };

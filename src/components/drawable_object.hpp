@@ -57,4 +57,13 @@ struct DrawableObject: public components::Component {
 		get_transform()->bind(entity);
 	}
 };
+
+struct DummyDrawable: public DrawableObject {
+	DummyDrawable(shaders::Program* ptr): program(ptr), DrawableObject() {}
+	shaders::Program* get_program() { return program; }
+	shaders::Program* program;
+	void bind(entity::Entity* entity) {
+		this->entity = entity;
+	}
+};
 }

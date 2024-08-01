@@ -11,11 +11,11 @@
 
 namespace texture {
 
-GLuint create_texture(const int width, const int height, const void *data, GLuint filter = GL_LINEAR) {
+GLuint create_texture(const int width, const int height, const void *data, GLuint color_mode = GL_RGBA, GLuint filter = GL_LINEAR) {
 		GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, color_mode, width, height, 0, color_mode, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
@@ -55,6 +55,14 @@ struct OneTextureObject: public TexturedObject {
 		return get_texture_impl(file::asset(name + ".png"));
 	}
 	std::string name;
+};
+
+struct IntTextureObject: public TexturedObject {
+	IntTextureObject(GLuint texture): TexturedObject(), texture(texture) {}
+	GLuint get_texture() {
+		return texture;
+	}
+	GLuint texture;
 };
 
 struct NoTextureObject: public TexturedObject {
