@@ -36,7 +36,7 @@ jobs:
         cd ..
         mkdir build
         cd build
-        emcmake cmake -DCMAKE_PREFIX_PATH=/usr/include/freetype2 ..
+        emcmake cmake ..
         emmake make
 
     - name: Deploy to GitHub Pages
