@@ -81,7 +81,7 @@ void init_joystick() {
 }
 
 
-struct TouchKeyboardButton: public TouchObject {0
+struct TouchKeyboardButton: public TouchObject {
 	TouchKeyboardButton(SDL_Scancode key, glm::vec2 top_left, glm::vec2 bottom_right) : TouchObject(), key(key), top_left(top_left), bottom_right(bottom_right) {}
 	void handle_touch(glm::vec2 pos) {
 		if (pos.x < top_left.x || pos.x > bottom_right.x || pos.y < top_left.y || pos.y > bottom_right.y) {
