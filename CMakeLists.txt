@@ -41,7 +41,7 @@ set(freetype-gl_BUILD_MAKEFONT OFF CACHE BOOL "" FORCE)
 add_subdirectory(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl)
 
 include_directories(${CMAKE_SOURCE_DIR}/3rd-party)
-include_directories(${CMAKE_SOURCE_DIR}/3rd-party/freetype-gl/build)
+include_directories(${PROJECT_BINARY_DIR}/3rd-party/freetype-gl)
 include_directories(/usr/include/freetype2  -I/usr/local/include/freetype2  -I/usr/include/libpng16)
 
 
