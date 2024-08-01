@@ -31,6 +31,7 @@ jobs:
     - name: Build with Emscripten
       run: |
         ls /usr/include/freetype2
+        ls /usr/lib | grep freetype
         cd emsdk
         source ./emsdk_env.sh
         cd ..
