@@ -8,6 +8,7 @@
 #include "game_objects/course.hpp"
 
 #include "utils/random.hpp"
+#include "utils/arena.hpp"
 #include "game_objects/tilemap.hpp"
 
 namespace map
@@ -15,44 +16,31 @@ namespace map
 
 uint8_t color[4] =	{56, 91, 94, 255};
 
-std::vector<std::unique_ptr<render::DrawableObject>> sprites;
-std::vector<std::unique_ptr<geometry::GeometryObject>> geometries;
-std::vector<std::unique_ptr<scene::SceneObject>> scenes;
-std::vector<std::unique_ptr<minimap::MiniMapEntity>> minimap_drawables;
-std::vector<std::unique_ptr<visibility::BlockingEntity>> blocking_drawables;
-
 std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, double y, double width, double height) {
-	auto full_sprite = std::make_unique<sprite::Sprite>(name, glm::vec2{y - height / 2, x - width / 2}, glm::vec2{y + height / 2, x + width / 2}, 3);
+	auto full_sprite = arena::create<sprite::Sprite>(name, glm::vec2{y - height / 2, x - width / 2}, glm::vec2{y + height / 2, x + width / 2}, 3);
 	
-	auto minimap_sprite = std::make_unique<sprite::SpriteCustomProgram>(name, glm::vec2{(y) / 10.0 - 0.05, (x) / 10.0 - 0.05}, glm::vec2{(y) / 10.0 + 0.05, (x) / 10.0 + 0.05}, 3, &shaders::static_object_program);
-	auto mini_entity = std::make_unique<entity::Entity>();
-	mini_entity->add(minimap_sprite.get());
+	auto minimap_sprite = arena::create<sprite::SpriteCustomProgram>(name, glm::vec2{(y) / 10.0 - 0.05, (x) / 10.0 - 0.05}, glm::vec2{(y) / 10.0 + 0.05, (x) / 10.0 + 0.05}, 3, &shaders::static_object_program);
+	auto mini_entity = arena::create<entity::Entity>();
+	mini_entity->add(minimap_sprite);
 	mini_entity->bind();
-	auto minimap_object = std::make_unique<minimap::MiniMapEntity>(std::move(mini_entity));
-	auto circle = std::make_unique<geometry::Circle>();
-	auto circle_drawable = std::make_unique<render::SolidDrawable>(circle.get());
+	auto minimap_object = arena::create<minimap::MiniMapEntityPtr>(mini_entity);
+	auto circle = arena::create<geometry::Circle>();
+	auto circle_drawable = arena::create<render::SolidDrawable>(circle);
 	circle_drawable->transform.scale(glm::vec2{0.2f, 0.2f});
 	circle_drawable->transform.translate(glm::vec2(y, x));
 	
-	auto blocking_entity = std::make_unique<entity::Entity>();
-	blocking_entity->add(circle_drawable.get());
+	auto blocking_entity = arena::create<entity::Entity>();
+	blocking_entity->add(circle_drawable);
 	blocking_entity->bind();
-	auto blocking_object = std::make_unique<visibility::BlockingEntity>(std::move(blocking_entity));
+	auto blocking_object = arena::create<visibility::BlockingEntityPtr>(blocking_entity);
 
-	auto main_scene = std::make_unique<scene::SceneObject>("main");
+	auto main_scene = arena::create<scene::SceneObject>("main");
 	auto e = std::make_unique<entity::Entity>();
-	e->add(full_sprite.get());
-	e->add(minimap_object.get());
-	e->add(blocking_object.get());
-	e->add(main_scene.get());
+	e->add(full_sprite);
+	e->add(minimap_object);
+	e->add(blocking_object);
+	e->add(main_scene);
 	e->bind();
-	sprites.push_back(std::move(full_sprite));
-	sprites.push_back(std::move(minimap_sprite));
-	sprites.push_back(std::move(circle_drawable));
-	scenes.push_back(std::move(main_scene));
-	minimap_drawables.push_back(std::move(minimap_object));
-	blocking_drawables.push_back(std::move(blocking_object));
-	geometries.push_back(std::move(circle));
 
 	return e;
 }

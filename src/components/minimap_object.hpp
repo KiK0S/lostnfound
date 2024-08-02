@@ -35,4 +35,14 @@ struct MiniMapEntity: public MiniMapObject {
 };
 
 
+struct MiniMapEntityPtr: public MiniMapObject {
+	MiniMapEntityPtr(entity::Entity* e): e(e), MiniMapObject() {}
+	~MiniMapEntityPtr() {}
+	entity::Entity* e;
+	virtual render::DrawableObject* get_drawable() {
+		return e->get<render::DrawableObject>();
+	}
+};
+
+
 }

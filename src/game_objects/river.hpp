@@ -5,15 +5,12 @@
 #include <vector>
 #include <memory>
 #include "geometry/curve.hpp"
+#include "utils/arena.hpp"
 
 #include "systems/easy_drawable_system.hpp"
 namespace river {
 struct Curve {
-	std::vector<std::unique_ptr<geometry::BezierCurve>> patches;
-	std::vector<std::unique_ptr<render::DrawableObject>> drawables;
-	std::vector<std::unique_ptr<minimap::MiniMapObject>> minimaps;
 	std::vector<std::unique_ptr<entity::Entity>> entities;
-	std::vector<std::unique_ptr<scene::SceneObject>> scenes;
 	Curve(std::vector<glm::vec2> points) {
 		if (points.size() == 0) return;
 		glm::vec2 prev = points[0];
@@ -32,30 +29,25 @@ struct Curve {
 	void add_curve_segment(std::array<glm::vec2, 4> points, int idx) {
 		std::cout << "add_curve_segment\n";
 		auto e = std::make_unique<entity::Entity>();
-		auto mini_e = std::make_unique<entity::Entity>();
-		auto patch = std::make_unique<geometry::BezierCurve>(std::string("river-") + std::to_string(idx), points);
-		auto drawable = std::make_unique<render::SolidDrawable>(patch.get(), &shaders::bezier_program);
-		auto mini_drawable = std::make_unique<render::SolidDrawable>(patch.get(), &shaders::bezier_program);
-		auto scened = std::make_unique<scene::SceneObject>("main");
+		auto mini_e = arena::create<entity::Entity>();
+		auto patch = arena::create<geometry::BezierCurve>(std::string("river-") + std::to_string(idx), points);
+		auto drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_program);
+		auto mini_drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_program);
+		auto scened = arena::create<scene::SceneObject>("main");
 		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
 		mini_drawable->color = &color::blue;
 		drawable->color = &color::blue;
 
-		drawable->uniforms.add(patch.get());
-		mini_drawable->uniforms.add(patch.get());
-		mini_e->add(mini_drawable.get());
+		drawable->uniforms.add(patch);
+		mini_drawable->uniforms.add(patch);
+		mini_e->add(mini_drawable);
 		mini_e->bind();
-		auto minimaped = std::make_unique<minimap::MiniMapEntity>(std::move(mini_e));
-		e->add(drawable.get());
-		e->add(minimaped.get());
-		e->add(scened.get());
+		auto minimaped = arena::create<minimap::MiniMapEntityPtr>(mini_e);
+		e->add(drawable);
+		e->add(minimaped);
+		e->add(scened);
 		e->bind();
 		entities.push_back(std::move(e));
-		minimaps.push_back(std::move(minimaped));
-		drawables.push_back(std::move(drawable));
-		drawables.push_back(std::move(mini_drawable));
-		scenes.push_back(std::move(scened));
-		patches.push_back(std::move(patch));
 	}
 };
 

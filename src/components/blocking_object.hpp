@@ -30,4 +30,13 @@ struct BlockingEntity: public BlockingObject {
 		return e->get<render::DrawableObject>();
 	}
 };
+
+struct BlockingEntityPtr: public BlockingObject {
+	BlockingEntityPtr(entity::Entity* e): e(e), BlockingObject() {}
+	~BlockingEntityPtr() {}
+	entity::Entity* e;
+	virtual render::DrawableObject* get_drawable() {
+		return e->get<render::DrawableObject>();
+	}
+};
 }

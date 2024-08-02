@@ -1,21 +1,17 @@
 #pragma once
 #include <string>
 #include "game_objects/sprite.hpp"
-
+#include "utils/arena.hpp"
 namespace tilemap {
 
-std::vector<std::unique_ptr<sprite::Sprite>> sprites;
-std::vector<std::unique_ptr<scene::SceneObject>> scenes;
 
 std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, double y, double width, double height) {
-	auto full_sprite = std::make_unique<sprite::Sprite>(name, glm::vec2{y - height / 2, x - width / 2}, glm::vec2{y + height / 2, x + width / 2}, 0);
-	auto main_scene = std::make_unique<scene::SceneObject>("main");
+	auto full_sprite = arena::create<sprite::Sprite>(name, glm::vec2{y - height / 2, x - width / 2}, glm::vec2{y + height / 2, x + width / 2}, 0);
+	auto main_scene = arena::create<scene::SceneObject>("main");
 	auto e = std::make_unique<entity::Entity>();
-	e->add(full_sprite.get());
-	e->add(main_scene.get());
+	e->add(full_sprite);
+	e->add(main_scene);
 	e->bind();
-	sprites.push_back(std::move(full_sprite));
-	scenes.push_back(std::move(main_scene));
 	return e;
 }
 

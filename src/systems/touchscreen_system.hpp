@@ -9,6 +9,7 @@
 #include "systems/minimap_system.hpp"
 #include "components/touch_object.hpp"
 #include "components/text_object.hpp"
+#include "utils/arena.hpp"
 
 #include <ctime>
 
@@ -17,10 +18,6 @@ namespace touchscreen {
 
 std::unique_ptr<entity::Entity> joystick;
 std::unique_ptr<entity::Entity> joystick_inner;
-std::unique_ptr<render::SolidDrawable> joystick_drawable;
-std::unique_ptr<render::SolidDrawable> joystick_inner_drawable;
-std::unique_ptr<scene::SceneObject> joystick_scene;
-std::unique_ptr<scene::SceneObject> joystick_inner_scene;
 minimap::MiniMapUniforms joystick_uniform;
 
 
@@ -58,25 +55,25 @@ JoystickUpdate joystick_update;
 
 void init_joystick() {
 	joystick = std::make_unique<entity::Entity>();
-	joystick_drawable = std::make_unique<render::SolidDrawable>(&geometry::circle, &shaders::static_object_program);
+	auto joystick_drawable = arena::create<render::SolidDrawable>(&geometry::circle, &shaders::static_object_program);
 	joystick_drawable->get_transform()->scale(glm::vec2(0.25f, 0.25f));
 	joystick_drawable->get_transform()->translate(glm::vec2(-0.6f, 0.6f));
 	joystick_drawable->color = &color::lighter_grey;
 	joystick_drawable->uniforms.add(&joystick_uniform);
-	joystick_scene = std::make_unique<scene::SceneObject>("main");
-	joystick->add(joystick_drawable.get());
-	joystick->add(joystick_scene.get());
+	auto joystick_scene = arena::create<scene::SceneObject>("main");
+	joystick->add(joystick_drawable);
+	joystick->add(joystick_scene);
 	joystick->bind();
 
 	joystick_inner = std::make_unique<entity::Entity>();
-	joystick_inner_drawable = std::make_unique<render::SolidDrawable>(&geometry::circle, &shaders::static_object_program);
+	auto joystick_inner_drawable = arena::create<render::SolidDrawable>(&geometry::circle, &shaders::static_object_program);
 	joystick_inner_drawable->get_transform()->scale(glm::vec2(0.2f, 0.2f));
 	joystick_inner_drawable->get_transform()->translate(glm::vec2(-0.6f, 0.6f));
 	joystick_inner_drawable->color = &color::light_grey;
 	joystick_inner_drawable->uniforms.add(&joystick_uniform);
-	joystick_inner_scene = std::make_unique<scene::SceneObject>("main");
-	joystick_inner->add(joystick_inner_drawable.get());
-	joystick_inner->add(joystick_inner_scene.get());
+	auto joystick_inner_scene = arena::create<scene::SceneObject>("main");
+	joystick_inner->add(joystick_inner_drawable);
+	joystick_inner->add(joystick_inner_scene);
 	joystick_inner->bind();
 }
 
@@ -105,7 +102,6 @@ struct TouchKeyboardButton: public TouchObject {
 };
 
 entity::Entity map_button;
-std::unique_ptr<scene::SceneObject> map_button_scene;
 
 struct TouchSystem: public dynamic::DynamicObject {
 	TouchSystem(): dynamic::DynamicObject(-1) {}

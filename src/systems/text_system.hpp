@@ -4,13 +4,13 @@
 #include "components/text_object.hpp"
 #include "freetype-gl/freetype-gl.h"
 #include "utils/file_system.hpp"
+#include "utils/arena.hpp"
 
 namespace render {
 
 texture_atlas_t *atlas = 0;
 texture_font_t *font = 0;
 std::unique_ptr<texture::IntTextureObject> text_texture;
-std::vector<std::unique_ptr<TextGeometry>> text_geometries;
 
 
 struct TextLoader: public init::UnInitializedObject {
@@ -31,7 +31,7 @@ struct TextLoader: public init::UnInitializedObject {
 	}
 	void init(TextObject* t) {
 		std::string text = t->get_text();
-		auto geom = std::make_unique<TextGeometry>(text);
+		auto geom = arena::create<TextGeometry>(text);
 		glm::vec2 pen(0.0, 0.0);
 		float max_y = 0.0;
 		for (int i = 0; i < text.size(); i++) {
@@ -75,10 +75,9 @@ struct TextLoader: public init::UnInitializedObject {
 			v.y *= 2.0 / max_y;
 			v.y -= 1.0;
 		}
-		add_to_frame(geom.get());
+		add_to_frame(geom);
 		geom->bind(t->get_entity());
 		text_texture->bind(t->get_entity());
-		text_geometries.push_back(std::move(geom));
 
 	}
 };
@@ -87,7 +86,7 @@ struct TextSystem : public dynamic::DynamicObject {
 	TextSystem(): dynamic::DynamicObject(11)  {}
 	~TextSystem(){}
 	void update() {
-		for (const auto& text_object : text_geometries) {
+		for (const auto& text_object : texts) {
 			auto e = text_object->get_entity();
 			display(e->get<DrawableObject>(), e->get<DrawableObject>()->get_program());
 		}

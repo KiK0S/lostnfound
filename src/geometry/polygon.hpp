@@ -42,8 +42,6 @@ struct Polygon : public geometry::GeometryObject {
 	std::string name;
 	std::vector<glm::vec2> points;
 	std::vector<glm::vec2> uv;
-
-	std::vector<std::unique_ptr<render::DrawableObject>> point_objects;
 };
 
 }

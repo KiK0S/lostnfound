@@ -1,6 +1,7 @@
 
 #pragma once
 #include "systems/easy_drawable_system.hpp"
+#include "utils/arena.hpp"
 
 namespace lake {
 
@@ -16,8 +17,6 @@ geometry::Polygon lake_polygon("lake", {
 
 
 
-std::vector<std::unique_ptr<scene::SceneObject>> spawned_scenes;
-std::vector<std::unique_ptr<sprite::Sprite>> spawned_sprites;
 scene::SceneObject lake_scene("main");
 render::SolidDrawable lake_drawable(&lake_polygon);
 render::SolidDrawable lake_mini_drawable(&lake_polygon, &shaders::static_object_program);
@@ -26,14 +25,12 @@ spawn::SpawnerRuleContainer duck_spawning({
 															spawn::SpawningRule{
 																0.75,
 																[](glm::vec2 pos) {
-																	auto sprite_ptr = std::make_unique<sprite::Sprite>("duck", glm::vec2{pos.x - 0.1, pos.y - 0.1}, glm::vec2{pos.x + 0.1, pos.y + 0.1}, 2);
-																	auto scene_ptr = std::make_unique<scene::SceneObject>("main");
+																	auto sprite_ptr = arena::create<sprite::Sprite>("duck", glm::vec2{pos.x - 0.1, pos.y - 0.1}, glm::vec2{pos.x + 0.1, pos.y + 0.1}, 2);
+																	auto scene_ptr = arena::create<scene::SceneObject>("main");
 																	auto duck = std::make_unique<entity::Entity>();
-																	duck->add(sprite_ptr.get());
-																	duck->add(scene_ptr.get());
+																	duck->add(sprite_ptr);
+																	duck->add(scene_ptr);
 																	duck->bind();
-																	spawned_scenes.emplace_back(std::move(scene_ptr));
-																	spawned_sprites.emplace_back(std::move(sprite_ptr));
 																	return duck;
 																}
 															}
