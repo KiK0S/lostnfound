@@ -103,6 +103,28 @@ struct TouchKeyboardButton: public TouchObject {
 
 entity::Entity map_button;
 
+
+
+TouchKeyboardButton map_button_handler(SDL_SCANCODE_SPACE, {0.7, 0.7}, {0.9, 0.8});
+transform::NoRotationTransform map_button_transform({{0.7, 0.7}, {0.9, 0.8}});
+layers::ConstLayer map_button_layer(5);
+render::ModelMatrix map_button_model_matrix;
+
+render::DummyDrawable map_button_drawable(&shaders::static_object_program);
+
+void init_map_button() {
+	auto map_button_text = arena::create<render::TextObject>("mymap");
+
+	map_button.add(map_button_text)
+						.add(&map_button_handler)
+						.add(&map_button_transform)
+						.add(&map_button_model_matrix)
+						.add(&map_button_layer)
+						.add(&color::red)
+						.add(&map_button_drawable)
+						.bind();
+}
+
 struct TouchSystem: public dynamic::DynamicObject {
 	TouchSystem(): dynamic::DynamicObject(-1) {}
 
@@ -110,11 +132,12 @@ struct TouchSystem: public dynamic::DynamicObject {
 
 	void init() {
 		touchscreen::init_joystick();
+		init_map_button();
 		inited = true;
 	}
 
 	void update() {
-		if (!inited /*&& SDL_GetNumTouchDevices() > 0*/) init();
+		if (!inited && SDL_GetNumTouchDevices() > 0) init();
 		if (!inited) return;
 		glm::vec2 point = input::get_touch() * 2.0f - glm::vec2(1.0f, 1.0f);
 		if (point.x == -1 && point.y == -1) {
@@ -129,27 +152,5 @@ struct TouchSystem: public dynamic::DynamicObject {
 };
 
 TouchSystem touchscreen_system;
-
-TouchKeyboardButton map_button_handler(SDL_SCANCODE_SPACE, {0.7, 0.7}, {0.9, 0.8});
-render::TextObject map_button_text("mymap");
-transform::NoRotationTransform map_button_transform({{0.7, 0.7}, {0.9, 0.8}});
-layers::ConstLayer map_button_layer(5);
-render::ModelMatrix map_button_model_matrix;
-
-render::DummyDrawable map_button_drawable(&shaders::static_object_program);
-
-void init() {
-	// map_button_transform.scale({0.1f, 0.1f});
-	map_button.add(&map_button_text)
-						.add(&map_button_handler)
-						.add(&map_button_transform)
-						.add(&map_button_model_matrix)
-						.add(&map_button_layer)
-						.add(&color::red)
-						.add(&map_button_drawable)
-						.bind();
-}
-
-init::CallbackOnStart map_button_init(&init);
 
 }
