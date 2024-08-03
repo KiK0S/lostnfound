@@ -18,6 +18,7 @@ int main() {
   SDL_SetWindowSize(window, 960, 960);
 	#endif
 	render::init(window);
+	level_loader::load(file::asset("lakes.data"));
 	render::init();
 	init::init();
 	scene::main.activate();

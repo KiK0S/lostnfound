@@ -13,3 +13,4 @@
 #include "systems/easy_drawable_system.hpp"
 #include "systems/touchscreen_system.hpp"
 #include "systems/text_system.hpp"
+#include "systems/level_loader_system.hpp"

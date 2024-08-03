@@ -27,7 +27,7 @@ struct Curve {
 	}
 
 	void add_curve_segment(std::array<glm::vec2, 4> points, int idx) {
-		std::cout << "add_curve_segment\n";
+		// std::cout << "add_curve_segment\n";
 		auto e = std::make_unique<entity::Entity>();
 		auto mini_e = arena::create<entity::Entity>();
 		auto patch = arena::create<geometry::BezierCurve>(std::string("river-") + std::to_string(idx), points);

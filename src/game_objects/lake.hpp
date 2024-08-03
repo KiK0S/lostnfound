@@ -5,6 +5,28 @@
 
 namespace lake {
 
+std::unique_ptr<entity::Entity> create_lake(std::string name, std::vector<glm::vec2> points) {
+	auto polygon = arena::create<geometry::Polygon>(name, points);
+	auto scene = arena::create<scene::SceneObject>("main");
+	auto drawable = arena::create<render::SolidDrawable>(polygon);
+	drawable->color = &color::blue;
+	auto mini_drawable = arena::create<render::SolidDrawable>(polygon, &shaders::static_object_program);
+	mini_drawable->transform.scale(glm::vec2{0.1f, 0.1f});
+	mini_drawable->color = &color::blue;
+	
+	std::unique_ptr<entity::Entity> lake = std::make_unique<entity::Entity>();
+	entity::Entity* mini_lake = arena::create<entity::Entity>();
+	mini_lake->add(mini_drawable);
+	mini_lake->bind();
+	auto minimap = arena::create<minimap::MiniMapEntityPtr>(mini_lake);
+
+	lake->add(drawable)
+			.add(minimap)
+			.add(scene)
+			.bind();
+	return lake;
+}
+
 geometry::Polygon lake_polygon("lake", {
 		glm::vec2(-3.0f, 0.0f),
 		glm::vec2(-2.5f, -0.1f),
