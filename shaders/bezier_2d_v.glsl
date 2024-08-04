@@ -1,4 +1,5 @@
 #version 300 es
+precision mediump float;
 
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexturePosition;
@@ -52,4 +53,5 @@ void main()
 	} else {
 		gl_Position = uViewMatrix * gl_Position;
 	}
+	bezierPos = vec2(gl_Position);
 }

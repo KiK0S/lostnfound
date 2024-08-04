@@ -6,7 +6,7 @@
 namespace camera {
 
 struct ViewMatrix : public shaders::ShaderUniformsObject {
-	ViewMatrix() : shaders::ShaderUniformsObject({&shaders::static_object_program, &shaders::raycast_program, &shaders::bezier_program, &shaders::visibility_program}) {}
+	ViewMatrix() : shaders::ShaderUniformsObject({&shaders::static_object_program, &shaders::raycast_program,  &shaders::bezier_raycast_program, &shaders::bezier_program, &shaders::visibility_program}) {}
 	
 	void reg_uniforms(GLuint program) {
 

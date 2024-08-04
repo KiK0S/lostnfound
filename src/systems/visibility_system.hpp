@@ -10,7 +10,7 @@
 namespace visibility {
 
 struct ObstacleMap: public dynamic::DynamicObject, shaders::ShaderUniformsObject {
-	ObstacleMap(): dynamic::DynamicObject(0), shaders::ShaderUniformsObject({&shaders::raycast_program}) {}
+	ObstacleMap(): dynamic::DynamicObject(0), shaders::ShaderUniformsObject({&shaders::raycast_program, &shaders::bezier_raycast_program}) {}
 	render::RenderTarget transparency_texture;
 
 	bool have_init = false;

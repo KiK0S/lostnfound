@@ -68,7 +68,7 @@ scene::SceneObject player_scene("main");
 
 
 struct RayCastPosition: public shaders::ShaderUniformsObject {
-	RayCastPosition(): ShaderUniformsObject({&shaders::raycast_program}) {}
+	RayCastPosition(): ShaderUniformsObject({&shaders::raycast_program, &shaders::bezier_raycast_program}) {}
 	~RayCastPosition(){}
 	void reg_uniforms(GLuint program) {
 		entity::Entity* e = get_entity();

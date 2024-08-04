@@ -27,6 +27,15 @@ void init() {
 		glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
 		if (linkSuccess == GL_FALSE) {
 				// fail to compile program
+				GLint maxLength = 0;
+				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+				glGetProgramInfoLog(program, maxLength, &maxLength, errorLog);
+
+				for (int i = 0; i < maxLength; i++) {
+					std::cerr << errorLog[i];
+				}
+				std::cerr << '\n';
 				glDeleteProgram(program);
 				throw std::runtime_error("cant create program");
 		}

@@ -31,7 +31,7 @@ struct Curve {
 		auto e = std::make_unique<entity::Entity>();
 		auto mini_e = arena::create<entity::Entity>();
 		auto patch = arena::create<geometry::BezierCurve>(std::string("river-") + std::to_string(idx), points);
-		auto drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_program);
+		auto drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_raycast_program);
 		auto mini_drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_program);
 		auto scened = arena::create<scene::SceneObject>("main");
 		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));

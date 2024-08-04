@@ -8,7 +8,7 @@
 namespace fog {
 
 struct Background: public shaders::ShaderUniformsObject {
-	Background(): shaders::ShaderUniformsObject({&shaders::raycast_program}) {}
+	Background(): shaders::ShaderUniformsObject({&shaders::raycast_program, &shaders::bezier_raycast_program}) {}
 
 	void reg_uniforms(GLuint program) {
 		entity::Entity* e = get_entity();
