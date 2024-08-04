@@ -51,6 +51,11 @@ struct Curve {
 	}
 };
 
+
+void create_river(std::string name, std::vector<glm::vec2> points) {
+	arena::create<Curve>(points);
+}
+
 Curve river({
 	{-0.75f, -0.75f},
 	{-0.25f,  1.0f},

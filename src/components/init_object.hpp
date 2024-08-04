@@ -14,7 +14,6 @@ struct cmp {
 
 struct UnInitializedObject: public components::Component {
 	UnInitializedObject(int priority = 0): components::Component(), priority(priority) {
-		std::cout << "UnInitializedObject " << priority << "\n";
 		initializable.push_back(this);
 	}
 	virtual ~UnInitializedObject() {}

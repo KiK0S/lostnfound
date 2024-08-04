@@ -21,7 +21,6 @@ struct StatefulObject: public components::Component {
 
 struct StringStateful: public StatefulObject {
 	StringStateful(std::string state): StatefulObject(), state(state) {
-		std::cout << "StringStateful" << this << '\n';
 	}
 	virtual ~StringStateful() {}
 
