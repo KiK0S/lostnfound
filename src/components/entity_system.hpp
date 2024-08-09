@@ -2,6 +2,7 @@
 #include "components/component.hpp"
 #include "components/all_components.hpp"
 #include <string>
+#include <stdexcept>
 
 namespace entity {
 
@@ -61,7 +62,7 @@ struct Entity {
 	template <typename T>
 	T* get_checked() {
 		auto res = get<T>();
-		if (res == nullptr) throw std::exception ("bad");
+		if (res == nullptr) throw std::runtime_error("bad");
 		return res;
 	}
 	
