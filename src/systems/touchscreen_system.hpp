@@ -9,6 +9,7 @@
 #include "systems/minimap_system.hpp"
 #include "components/touch_object.hpp"
 #include "components/text_object.hpp"
+#include "systems/text_system.hpp"
 #include "utils/arena.hpp"
 
 #include <ctime>
@@ -88,14 +89,13 @@ struct TouchKeyboardButton: public TouchObject {
 		std::chrono::time_point<std::chrono::system_clock> cur_time = std::chrono::system_clock::now();
 		
 		input::is_pressed[key] = true;
-		if ((cur_time - last_pushed).count() > 10000) {
-			SDL_Event event;
-			event.key.keysym.scancode = key;
-			input::input.fire_event(event);
-		}
+		if ((cur_time - last_pushed).count() < 300000) return;
+		SDL_Event event;
+		event.key.keysym.scancode = key;
+		input::input.fire_event(event);
 		last_pushed = cur_time;
 	}
-	std::chrono::time_point<std::chrono::system_clock> last_pushed = std::chrono::time_point<std::chrono::system_clock>::min();
+	std::chrono::time_point<std::chrono::system_clock> last_pushed = std::chrono::system_clock::now();
 	SDL_Scancode key;
 	glm::vec2 top_left;
 	glm::vec2 bottom_right;
@@ -109,19 +109,23 @@ TouchKeyboardButton map_button_handler(SDL_SCANCODE_SPACE, {0.7, 0.7}, {0.9, 0.8
 transform::NoRotationTransform map_button_transform({{0.7, 0.7}, {0.9, 0.8}});
 layers::ConstLayer map_button_layer(5);
 render::ModelMatrix map_button_model_matrix;
+render::TextObject map_button_text("mymap");
 
 render::DummyDrawable map_button_drawable(&shaders::static_object_program);
 
 void init_map_button() {
-	auto map_button_text = arena::create<render::TextObject>("mymap");
+	auto map_button_scene = arena::create<scene::SceneObject>("main");
 
-	map_button.add(map_button_text)
+	map_button.add(render::geometries[map_button_text.get_text()])
+						.add(render::text_texture.get())
 						.add(&map_button_handler)
+						.add(map_button_scene)
 						.add(&map_button_transform)
 						.add(&map_button_model_matrix)
 						.add(&map_button_layer)
 						.add(&color::red)
 						.add(&map_button_drawable)
+
 						.bind();
 }
 

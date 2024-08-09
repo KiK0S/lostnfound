@@ -11,10 +11,10 @@ namespace render {
 texture_atlas_t *atlas = 0;
 texture_font_t *font = 0;
 std::unique_ptr<texture::IntTextureObject> text_texture;
+std::map<std::string, geometry::GeometryObject*> geometries;
 
-
-struct TextLoader/*: public init::UnInitializedObject */{
-	TextLoader() /*: init::UnInitializedObject(1)*/ {}
+struct TextLoader: public init::UnInitializedObject {
+	TextLoader(): init::UnInitializedObject(1) {}
 
 	void init() {
     atlas = texture_atlas_new( 512, 512, 4 );
@@ -76,34 +76,10 @@ struct TextLoader/*: public init::UnInitializedObject */{
 			v.y -= 1.0;
 		}
 		add_to_frame(geom);
-		geom->bind(t->get_entity());
-		t->get_entity()->add(geom);
-		text_texture->bind(t->get_entity());
-		t->get_entity()->add(text_texture.get());
-
+		geometries[text] = geom;
 	}
 };
 
 TextLoader text_loader;
-
-struct TextSystem : public dynamic::DynamicObject {
-	TextSystem(): dynamic::DynamicObject(11)  {}
-	~TextSystem(){}
-	bool inited = false;
-	void update() {
-		if (!inited) {
-			text_loader.init();
-			inited = true;
-		}
-		for (const auto& text_object : texts) {
-			auto e = text_object->get_entity();
-			display(e->get<DrawableObject>(), e->get<DrawableObject>()->get_program());
-		}
-	}
-
-};
-
-TextSystem text_system;
-
 
 }
