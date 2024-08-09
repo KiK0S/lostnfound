@@ -13,8 +13,8 @@ texture_font_t *font = 0;
 std::unique_ptr<texture::IntTextureObject> text_texture;
 
 
-struct TextLoader: public init::UnInitializedObject {
-	TextLoader(): init::UnInitializedObject(1) {}
+struct TextLoader/*: public init::UnInitializedObject */{
+	TextLoader() /*: init::UnInitializedObject(1)*/ {}
 
 	void init() {
     atlas = texture_atlas_new( 512, 512, 4 );
@@ -77,15 +77,24 @@ struct TextLoader: public init::UnInitializedObject {
 		}
 		add_to_frame(geom);
 		geom->bind(t->get_entity());
+		t->get_entity()->add(geom);
 		text_texture->bind(t->get_entity());
+		t->get_entity()->add(text_texture.get());
 
 	}
 };
 
+TextLoader text_loader;
+
 struct TextSystem : public dynamic::DynamicObject {
 	TextSystem(): dynamic::DynamicObject(11)  {}
 	~TextSystem(){}
+	bool inited = false;
 	void update() {
+		if (!inited) {
+			text_loader.init();
+			inited = true;
+		}
 		for (const auto& text_object : texts) {
 			auto e = text_object->get_entity();
 			display(e->get<DrawableObject>(), e->get<DrawableObject>()->get_program());
@@ -94,7 +103,6 @@ struct TextSystem : public dynamic::DynamicObject {
 
 };
 
-TextLoader text_loader;
 TextSystem text_system;
 
 
