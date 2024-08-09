@@ -15,6 +15,7 @@
 #include "glm/glm/vec2.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "systems/gpu_program_system.hpp"
+#include "systems/texture_system.hpp"
 
 
 namespace render {
@@ -190,15 +191,21 @@ void display(DrawableObject* object, shaders::Program* program_ptr) {
 
 		auto textureLocation = glGetUniformLocation(program, "uTexture");
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, object->get_texture()->get_texture());
+		auto texture_comp = object->get_texture();
+		if (texture_comp == nullptr) {
+			texture_comp = &texture::no_texture;
+		}
+		glBindTexture(GL_TEXTURE_2D, texture_comp->get_texture());
 		glUniform1i(textureLocation, 0);
 
 		auto colorLocation = glGetUniformLocation(program, "uColor");
 		glUniform4fv(colorLocation, 1, glm::value_ptr(object->get_color()->get_color()));
 
 		program_ptr->reg_uniforms(program);
-		object->get_uniform()->reg_uniforms(program);
-		
+		auto uniforms_comp = object->get_uniform();
+		if (uniforms_comp != nullptr) {
+			uniforms_comp->reg_uniforms(program);
+		}
 
 		glDrawArrays(GL_TRIANGLES, 0, object->get_geometry()->get_size());
 	});

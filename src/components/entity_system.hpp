@@ -26,6 +26,23 @@ struct Entity {
 		return *this;
 	}
 
+
+	template <typename T>
+	std::vector<T*> get_all() {
+		std::vector<T*> res;
+		for (auto x : components) {
+			T* casted_ptr = dynamic_cast<T*>(x);
+			if (casted_ptr != nullptr)
+				res.push_back(casted_ptr);
+		}
+		for (auto x : pre_bind_components) {
+			T* casted_ptr = dynamic_cast<T*>(x);
+			if (casted_ptr != nullptr)
+				res.push_back(casted_ptr);
+		}
+		return res;
+	}
+
 	template <typename T>
 	T* get() {
 		for (auto x : components) {
@@ -40,6 +57,14 @@ struct Entity {
 		}
 		return nullptr;
 	}
+
+	template <typename T>
+	T* get_checked() {
+		auto res = get<T>();
+		if (res == nullptr) throw std::exception ("bad");
+		return res;
+	}
+	
 
 	std::vector<components::Component*> pre_bind_components;
 	std::vector<components::Component*> components;

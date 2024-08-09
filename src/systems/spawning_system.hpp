@@ -55,7 +55,7 @@ struct SpawnerSystem: public init::UnInitializedObject {
 		}
 	}
 
-	std::vector<std::unique_ptr<entity::Entity>> point_objects;
+	std::vector<entity::Entity*> point_objects;
 
 };
 

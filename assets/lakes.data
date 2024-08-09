@@ -1,12 +1,42 @@
-lake
 first_lake
+geometry
+polygon
 5
 3.0 3.2
 3.2 3.0
 2.9 2.9
 2.95 3.3
 3.0 3.3
-river
+color
+0 0 255 255
+layer
+2
+minimap
+first_lake_mini
+geometry
+polygon
+5
+3.0 3.2
+3.2 3.0
+2.9 2.9
+2.95 3.3
+3.0 3.3
+color
+0 0 255 255
+first_lake_mini
+spawner
+0.75
+first_lake_duck
+texture
+duck
+layer
+3
+first_lake_duck
+first_lake
+
+small_river
+geometry
+curve
 6
 6.0 0.0
 6.1 2.0
@@ -14,3 +44,62 @@ river
 3.5 4.0
 3.4 4.2
 3.3 4.1
+color
+0 30 255 255
+layer
+2
+minimap
+small_river_minimap
+geometry
+curve
+6
+6.0 0.0
+6.1 2.0
+4.9 5.0
+3.5 4.0
+3.4 4.2
+3.3 4.1
+color
+0 30 255 255
+small_river_minimap
+
+small_river
+
+orig_river
+geometry
+curve
+10
+-0.75 -0.75
+-0.25  1.0
+0.25 -1.0
+0.75  0.0
+1.0 0.0
+1.25 -0.5
+1.7 2.0
+1.8 1.0
+1.6 0.8
+1.5 0.9
+color
+0 0 255 255
+layer
+2
+
+minimap
+orig_river_minimap
+geometry
+curve
+10
+-0.75 -0.75
+-0.25  1.0
+0.25 -1.0
+0.75  0.0
+1.0 0.0
+1.25 -0.5
+1.7 2.0
+1.8 1.0
+1.6 0.8
+1.5 0.9
+color
+0 0 255 255
+orig_river_minimap
+orig_river

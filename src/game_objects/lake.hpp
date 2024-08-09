@@ -16,11 +16,26 @@ std::unique_ptr<entity::Entity> create_lake(std::string name, std::vector<glm::v
 	
 	std::unique_ptr<entity::Entity> lake = std::make_unique<entity::Entity>();
 	entity::Entity* mini_lake = arena::create<entity::Entity>();
+	// auto spawning = arena::create<spawn::SpawnerRuleContainer>({
+	// 														spawn::SpawningRule{
+	// 															0.75,
+	// 															[](glm::vec2 pos) {
+	// 																auto sprite_ptr = arena::create<sprite::Sprite>("duck", glm::vec2{pos.x - 0.1, pos.y - 0.1}, glm::vec2{pos.x + 0.1, pos.y + 0.1}, 2);
+	// 																auto scene_ptr = arena::create<scene::SceneObject>("main");
+	// 																auto duck = std::make_unique<entity::Entity>();
+	// 																duck->add(sprite_ptr);
+	// 																duck->add(scene_ptr);
+	// 																duck->bind();
+	// 																return duck;
+	// 															}
+	// 														}
+	// 													});
 	mini_lake->add(mini_drawable);
 	mini_lake->bind();
 	auto minimap = arena::create<minimap::MiniMapEntityPtr>(mini_lake);
 
 	lake->add(drawable)
+			// .add(spawning)
 			.add(minimap)
 			.add(scene)
 			.bind();
@@ -49,7 +64,7 @@ spawn::SpawnerRuleContainer duck_spawning({
 																[](glm::vec2 pos) {
 																	auto sprite_ptr = arena::create<sprite::Sprite>("duck", glm::vec2{pos.x - 0.1, pos.y - 0.1}, glm::vec2{pos.x + 0.1, pos.y + 0.1}, 2);
 																	auto scene_ptr = arena::create<scene::SceneObject>("main");
-																	auto duck = std::make_unique<entity::Entity>();
+																	auto duck = arena::create<entity::Entity>();
 																	duck->add(sprite_ptr);
 																	duck->add(scene_ptr);
 																	duck->bind();

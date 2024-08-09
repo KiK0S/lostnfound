@@ -12,7 +12,7 @@ std::vector<SpawnerObject*> spawners;
 
 struct SpawningRule {
 	double density;
-	std::function<std::unique_ptr<entity::Entity>(glm::vec2)> spawn;
+	std::function<entity::Entity*(glm::vec2)> spawn;
 };
 
 struct SpawnerObject: public components::Component {
