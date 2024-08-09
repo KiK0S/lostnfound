@@ -3,7 +3,7 @@
 
 namespace arena {
 
-const int SIZE = 1024 * 1024 * 10;
+const int SIZE = 1024 * 1024 * 15;
 int data_begin = 0;
 char data[SIZE];
 
