@@ -23,6 +23,7 @@ struct NoColorObject: public ColoredObject {
 
 NoColorObject no_color;
 
+OneColor white({1.0f, 1.0f, 1.0f, 1.0f});
 OneColor red({1.0f, 0.0f, 0.0f, 1.0f});
 OneColor green({0.0f, 1.0f, 0.0f, 1.0f});
 OneColor blue({0.0f, 0.0f, 1.0f, 1.0f});

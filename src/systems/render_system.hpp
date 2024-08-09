@@ -16,6 +16,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "systems/gpu_program_system.hpp"
 #include "systems/texture_system.hpp"
+#include "systems/color_system.hpp"
 
 
 namespace render {
@@ -199,8 +200,13 @@ void display(DrawableObject* object, shaders::Program* program_ptr) {
 		glUniform1i(textureLocation, 0);
 
 		auto colorLocation = glGetUniformLocation(program, "uColor");
-		glUniform4fv(colorLocation, 1, glm::value_ptr(object->get_color()->get_color()));
 
+		auto color_comp = object->get_color();
+		if (color_comp != nullptr) {
+			glUniform4fv(colorLocation, 1, glm::value_ptr(object->get_color()->get_color()));
+		} else {
+			glUniform4fv(colorLocation, 1, glm::value_ptr(color::white.get_color()));
+		}
 		program_ptr->reg_uniforms(program);
 		auto uniforms_comp = object->get_uniform();
 		if (uniforms_comp != nullptr) {

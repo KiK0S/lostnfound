@@ -50,11 +50,16 @@ struct DrawableObject: public components::Component {
 
 	void bind(entity::Entity* entity) {
 		this->entity = entity;
-		get_geometry()->bind(entity);
-		get_uniform()->bind(entity);
-		get_texture()->bind(entity);
-		get_layer()->bind(entity);
-		get_transform()->bind(entity);
+		if (get_geometry() != nullptr)
+			get_geometry()->bind(entity);
+		if (get_uniform() != nullptr)
+			get_uniform()->bind(entity);
+		if (get_texture() != nullptr)
+			get_texture()->bind(entity);
+		if (get_layer() != nullptr)
+			get_layer()->bind(entity);
+		if (get_transform() != nullptr)
+			get_transform()->bind(entity);
 	}
 };
 
@@ -63,7 +68,7 @@ struct DummyDrawable: public DrawableObject {
 	shaders::Program* get_program() { return program; }
 	shaders::Program* program;
 	void bind(entity::Entity* entity) {
-		this->entity = entity;
+		DrawableObject::bind(entity);
 	}
 };
 }

@@ -13,7 +13,7 @@ std::vector<entity::Entity*> parse(std::istream& in);
 std::string parse_entity_description(std::istream& in) {
 	std::string name;
 	in >> name;
-	std::string res;
+	std::string res = name;
 	std::string token;
 	while (in >> token) {
 		res = res + ' ' + token;
@@ -64,26 +64,24 @@ color::ColoredObject* parse_color(std::istream& in) {
 spawn::SpawnerObject* parse_spawner(std::istream& in) {
 	double density;
 	in >> density;
+	std::cerr << density << std::endl;
 	auto desc = parse_entity_description(in);
-
+	std::cerr << density << std::endl << desc << std::endl;
 	return arena::create<spawn::SpawnerRuleContainer>(std::vector{
 															spawn::SpawningRule{
 																0.75,
-																[&](glm::vec2 pos) {
+																[=](glm::vec2 pos) {
+																	std::cerr << desc << std::endl;
 																	std::istringstream new_e_desc(desc);
 																	auto new_e = parse_entity(new_e_desc);
-																	auto transformation = arena::create<transform::Transform2d>();
-																	transformation->translate(pos);
-																	new_e->add(transformation);
+																	new_e->get<transform::TransformObject>()->translate(pos);
+																	new_e->get<transform::TransformObject>()->scale({0.1f, 0.1f});
+																	new_e->add(&geometry::quad);
+
+																	auto scene = arena::create<scene::SceneObject>("main");
+																	new_e->add(scene);
 																	new_e->bind();
 																	return new_e;
-																	// auto sprite_ptr = arena::create<sprite::Sprite>("duck", glm::vec2{pos.x - 0.1, pos.y - 0.1}, glm::vec2{pos.x + 0.1, pos.y + 0.1}, 2);
-																	// auto scene_ptr = arena::create<scene::SceneObject>("main");
-																	// auto duck = std::make_unique<entity::Entity>();
-																	// duck->add(sprite_ptr);
-																	// duck->add(scene_ptr);
-																	// duck->bind();
-																	// return duck;
 																}
 															}
 														});
@@ -128,7 +126,6 @@ std::vector<entity::Entity*> parse(std::istream& in) {
 	entity::Entity* e;
 	while ((e = parse_entity(in)) != nullptr) {		
 		res.push_back(e);
-		// break;
 	}
 	return res;
 }

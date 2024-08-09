@@ -5,9 +5,7 @@
 #include <string>
 #include <fstream>
 #include "components/entity_system.hpp"
-#include "game_objects/lake.hpp"
 #include "systems/component_loader_system.hpp"
-#include "game_objects/river.hpp"
 namespace level_loader {
 
 void load(std::string filename) {
