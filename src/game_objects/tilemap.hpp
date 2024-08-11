@@ -26,7 +26,6 @@ struct TileMap {
 		}
 	}
 };
-TileMap tilemap_data(100, 100);
 
 entity::Entity tilemap;
 render::FramebufferTexture tilemap_texture;
@@ -43,35 +42,39 @@ struct TilemapInit: public init::UnInitializedObject {
 	~TilemapInit() {}
 
 	void init() {
-		tilemap_texture.render_texture = render::create_render_target(GL_RGBA8, GL_RGBA);
+		arena::run_with_arena(1024 * 1024 * 10, [&]() {
+			TileMap tilemap_data(100, 100);
 
-		render::bind_render_target(&tilemap_texture.render_texture);
+			tilemap_texture.render_texture = render::create_render_target(GL_RGBA8, GL_RGBA);
+
+			render::bind_render_target(&tilemap_texture.render_texture);
 
 
-		glClearColor(1.0, 0.7, 0.3, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		for (const auto& object : tilemap_data.tiles) {
-			// shaders::run_with_program(object->get_entity()->get<shaders::ProgramArgumentObject>()->get_program(), [&](GLuint p) {
-			// 	glUniform1i(glGetUniformLocation(p, "toFramebuffer"), false);
-			// });
-			render::display(object.get(), object->get<shaders::ProgramArgumentObject>()->get_program());
-			// shaders::run_with_program(object->get_entity()->get<shaders::ProgramArgumentObject>()->get_program(), [&](GLuint p) {
-			// 	glUniform1i(glGetUniformLocation(p, "toFramebuffer"), false);
-			// });
-		}
-		render::bind_render_target(nullptr);
+			glClearColor(1.0, 0.7, 0.3, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			for (const auto& object : tilemap_data.tiles) {
+				// shaders::run_with_program(object->get_entity()->get<shaders::ProgramArgumentObject>()->get_program(), [&](GLuint p) {
+				// 	glUniform1i(glGetUniformLocation(p, "toFramebuffer"), false);
+				// });
+				render::display(object.get(), object->get<shaders::ProgramArgumentObject>()->get_program());
+				// shaders::run_with_program(object->get_entity()->get<shaders::ProgramArgumentObject>()->get_program(), [&](GLuint p) {
+				// 	glUniform1i(glGetUniformLocation(p, "toFramebuffer"), false);
+				// });
+			}
+			render::bind_render_target(nullptr);
 
-		tilemap_transform.scale(glm::vec2{10.0f, 10.0f});
+			tilemap_transform.scale(glm::vec2{10.0f, 10.0f});
 
-		tilemap.add(&geometry::quad)
-					.add(&tilemap_texture)
-					.add(&tilemap_model_matrix)
-					.add(&tilemap_model_matrix)
-					.add(&tilemap_transform)
-					.add(&tilemap_scene)
-					.add(&tilemap_layer)
-					.add(&tilemap_program)
-					.bind();
+			tilemap.add(&geometry::quad)
+						.add(&tilemap_texture)
+						.add(&tilemap_model_matrix)
+						.add(&tilemap_model_matrix)
+						.add(&tilemap_transform)
+						.add(&tilemap_scene)
+						.add(&tilemap_layer)
+						.add(&tilemap_program)
+						.bind();
+		});
 	}
 };
 
