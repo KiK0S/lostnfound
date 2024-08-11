@@ -1,6 +1,7 @@
 #pragma once
 #include "components/entity_system.hpp"
 #include "geometry_system.hpp"
+#include "components/collision_object.hpp"
 #include <iostream>
 
 
@@ -50,6 +51,10 @@ layers::LayeredObject* parse_layer(std::istream& in) {
 	int layer_num;
 	in >> layer_num;
 	return arena::create<layers::ConstLayer>(layer_num);
+}
+
+collision::CollisionObject* parse_collision(std::istream& in) {
+	return arena::create<collision::CollisionObject>();
 }
 
 color::ColoredObject* parse_color(std::istream& in) {
@@ -110,6 +115,7 @@ entity::Entity* parse_entity(std::istream& in, shaders::Program* program) {
 		if (comp == "layer") e->add(parse_layer(in));
 		if (comp == "minimap") e->add(parse_minimap(in));
 		if (comp == "spawner") e->add(parse_spawner(in));
+		if (comp == "collision") e->add(parse_collision(in));
 	}
 	auto model_matrix = arena::create<render::ModelMatrix>();
 	e->add(model_matrix);

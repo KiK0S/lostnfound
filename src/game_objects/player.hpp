@@ -7,6 +7,7 @@
 #include "components/stateful_object.hpp"
 #include "components/gpu_program.hpp"
 #include "glm/glm/vec2.hpp"
+#include "systems/movable_system.hpp"
 
 namespace player {
 
@@ -46,7 +47,10 @@ struct KeyboardMovement : public dynamic::DynamicObject {
 		d *= k;
 
 		transform::TransformObject* t = e->get<transform::TransformObject>();
+		move::MovableObject* m = e->get<move::MovableObject>();
+		d = m->move(d);
 		t->translate(d);
+		len = glm::length(d);
 
 		states::StatefulObject* a = e->get<states::StatefulObject>();
 
@@ -65,6 +69,7 @@ KeyboardMovement player_control;
 
 
 scene::SceneObject player_scene("main");
+move::MovableWithCollisions player_move;
 
 
 struct RayCastPosition: public shaders::ShaderUniformsObject {
@@ -96,6 +101,7 @@ void init() {
 				.add(&raycast_provider)
 				.add(&player_control)
 				.add(&player_scene)
+				.add(&player_move)
 				.bind();
 }
 init::CallbackOnStart player_init(&init);

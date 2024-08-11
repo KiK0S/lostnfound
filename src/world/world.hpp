@@ -29,6 +29,8 @@ std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, do
 	circle_drawable->transform.scale(glm::vec2{0.2f, 0.2f});
 	circle_drawable->transform.translate(glm::vec2(y, x));
 	
+	auto collision = arena::create<collision::CollisionObject>();
+
 	auto blocking_entity = arena::create<entity::Entity>();
 	blocking_entity->add(circle_drawable);
 	blocking_entity->bind();
@@ -37,6 +39,7 @@ std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, do
 	auto main_scene = arena::create<scene::SceneObject>("main");
 	auto e = std::make_unique<entity::Entity>();
 	e->add(full_sprite);
+	e->add(collision);
 	e->add(minimap_object);
 	e->add(blocking_object);
 	e->add(main_scene);
