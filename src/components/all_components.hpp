@@ -2,7 +2,6 @@
 #include "components/animated_object.hpp"
 #include "components/blocking_object.hpp"
 #include "components/controllable_object.hpp"
-#include "components/drawable_object.hpp"
 #include "components/dynamic_object.hpp"
 #include "components/geometry_object.hpp"
 #include "components/gpu_program.hpp"

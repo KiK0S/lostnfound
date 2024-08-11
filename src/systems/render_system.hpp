@@ -9,7 +9,6 @@
 #include <string>
 #include <algorithm>
 #include <stdexcept>
-#include "components/drawable_object.hpp"
 #include "components/dynamic_object.hpp"
 #include "glm/glm/vec4.hpp"
 #include "glm/glm/vec2.hpp"
@@ -17,6 +16,7 @@
 #include "systems/gpu_program_system.hpp"
 #include "systems/texture_system.hpp"
 #include "systems/color_system.hpp"
+#include "components/hidden_object.hpp"
 
 
 namespace render {
@@ -149,6 +149,17 @@ void init() {
 	}
 }
 
+
+struct FramebufferTexture : public texture::TexturedObject {
+	FramebufferTexture(): texture::TexturedObject() {}
+	~FramebufferTexture() {}
+
+	render::RenderTarget render_texture;
+	GLuint get_texture() {	
+		return render_texture.output_texture;
+	};
+};
+
 RenderTarget create_render_target(GLenum internalFormat, GLenum format) {
 	GLuint framebuffer = 0;
 	glGenFramebuffers(1, &framebuffer);
@@ -186,13 +197,16 @@ void bind_render_target(RenderTarget* target) {
 }
 
 
-void display(DrawableObject* object, shaders::Program* program_ptr) {
+void display(entity::Entity* entity, shaders::Program* program_ptr) {
 	shaders::run_with_program(program_ptr, [&](GLuint program){
-		glBindVertexArray(vao_data[object->get_geometry()->get_name()]);
-
+		glBindVertexArray(vao_data[entity->get<geometry::GeometryObject>()->get_name()]);
+		auto hidden_comp = entity->get<render::HiddenObject>();
+		if (hidden_comp != nullptr && !hidden_comp->is_visible()) {
+			return;
+		}
 		auto textureLocation = glGetUniformLocation(program, "uTexture");
 		glActiveTexture(GL_TEXTURE0);
-		auto texture_comp = object->get_texture();
+		auto texture_comp = entity->get<texture::TexturedObject>();
 		if (texture_comp == nullptr) {
 			texture_comp = &texture::no_texture;
 		}
@@ -201,19 +215,19 @@ void display(DrawableObject* object, shaders::Program* program_ptr) {
 
 		auto colorLocation = glGetUniformLocation(program, "uColor");
 
-		auto color_comp = object->get_color();
+		auto color_comp = entity->get<color::ColoredObject>();
 		if (color_comp != nullptr) {
-			glUniform4fv(colorLocation, 1, glm::value_ptr(object->get_color()->get_color()));
+			glUniform4fv(colorLocation, 1, glm::value_ptr(color_comp->get_color()));
 		} else {
 			glUniform4fv(colorLocation, 1, glm::value_ptr(color::white.get_color()));
 		}
 		program_ptr->reg_uniforms(program);
-		auto uniforms_comp = object->get_uniform();
-		if (uniforms_comp != nullptr) {
+		auto uniforms_comps = entity->get_all<shaders::ShaderUniformsObject>();
+		for (auto uniforms_comp : uniforms_comps) {
 			uniforms_comp->reg_uniforms(program);
 		}
 
-		glDrawArrays(GL_TRIANGLES, 0, object->get_geometry()->get_size());
+		glDrawArrays(GL_TRIANGLES, 0, entity->get<geometry::GeometryObject>()->get_size());
 	});
 
 }

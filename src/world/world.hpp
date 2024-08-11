@@ -48,10 +48,9 @@ std::unique_ptr<entity::Entity> map_object(const std::string& name, double x, do
 struct World {
 
 	std::vector<std::unique_ptr<entity::Entity>> objects;
-	tilemap::TileMap tilemap;
 	int n, m;
 
-	World(int n, int m): n(n), m(m), tilemap(n, m) {
+	World(int n, int m): n(n), m(m) {
 		int treesCnt = 50;
 		int rockCnt = 20;
 

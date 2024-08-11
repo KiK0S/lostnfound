@@ -1,6 +1,5 @@
 #pragma once
 #include "components/animated_object.hpp"
-#include "components/drawable_object.hpp"
 #include "components/controllable_object.hpp"
 #include "systems/render_system.hpp"
 #include "utils/file_system.hpp"
@@ -43,7 +42,6 @@ namespace geometry {
 		virtual std::string get_name() const {
 			return "quad";
 		}
-		void bind(entity::Entity*) {}
 
 		std::vector<glm::vec2> pos, uv;
 	};

@@ -82,23 +82,32 @@ struct AnimationTimer : public animation::AnimatedObject {
 	float time = 0.0;
 };
 
-struct AnimatedTexture : public TexturedObject, states::StringStateful {
-	AnimatedTexture(std::string name, std::map<std::string, std::vector<float>> data): name(name), TexturedObject(), animation(), states::StringStateful(data.begin()->first), durations(data) {}
-	~AnimatedTexture() {}
-	GLuint get_texture() {
-
-		while (durations[get_state()][current_index] <= animation.time) {
-			animation.time -= durations[get_state()][current_index];
-			current_index += 1;
-			if (current_index == durations[get_state()].size()) {
-				current_index = 0;
-			}
-		}
-		return get_texture_impl(file::asset(name + "_" + get_state() + "_" + std::to_string(current_index) + ".png"));
-	}
+struct StateReset : public states::StringStateful {
+	StateReset(std::function<void()>&& reset, std::string s): reset(std::move(reset)), states::StringStateful(s) {}
 	void set_state(std::string state) {
 		if (get_state() == state) return;
 		states::StringStateful::set_state(state);
+		reset();
+	}
+	std::function<void()> reset;
+};
+
+struct AnimatedTexture : public TexturedObject {
+	AnimatedTexture(std::string name, std::map<std::string, std::vector<float>> data): name(name), TexturedObject(), animation(), state(std::bind(&AnimatedTexture::reset, this), data.begin()->first), durations(data) {}
+	~AnimatedTexture() {}
+	GLuint get_texture() {
+
+		while (durations[state.get_state()][current_index] <= animation.time) {
+			animation.time -= durations[state.get_state()][current_index];
+			current_index += 1;
+			if (current_index == durations[state.get_state()].size()) {
+				current_index = 0;
+			}
+		}
+		return get_texture_impl(file::asset(name + "_" + state.get_state() + "_" + std::to_string(current_index) + ".png"));
+	}
+
+	void reset() {
 		animation.time = 0.0f;
 		current_index = 0;
 	}
@@ -106,12 +115,14 @@ struct AnimatedTexture : public TexturedObject, states::StringStateful {
 	void bind(entity::Entity* e) {
 		TexturedObject::bind(e);
 		animation.bind(e);
-		states::StringStateful::bind(e);
+		state.bind(e);
 	}
 	AnimationTimer animation;
 	std::map<std::string, std::vector<float>> durations;
 	std::string name;
+	StateReset state;
 	size_t current_index = 0;
 };
+
 
 }

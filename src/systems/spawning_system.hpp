@@ -1,7 +1,6 @@
 #pragma once
 #include "utils/random.hpp"
 #include "glm/glm/vec2.hpp"
-#include "components/drawable_object.hpp"
 #include "components/init_object.hpp"
 #include "components/spawner_object.hpp"
 #include <functional>

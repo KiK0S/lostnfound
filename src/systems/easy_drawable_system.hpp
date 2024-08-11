@@ -1,7 +1,7 @@
 #pragma once
-#include "components/drawable_object.hpp"
 #include "systems/texture_system.hpp"
 #include "systems/color_system.hpp"
+#include "utils/arena.hpp"
 
 namespace render {
 
@@ -40,9 +40,9 @@ CombinedUniforms(std::vector<shaders::ShaderUniformsObject*> uniforms): uniforms
 };	
 
 
-struct SolidDrawable: public render::DrawableObject {
+struct SolidDrawable: public components::Component {
 	SolidDrawable(geometry::GeometryObject* geometry, shaders::Program* program): program(program), geometry(geometry), layer(1),
-		uniforms({&model_matrix}) {}
+		uniforms({&model_matrix}), components::Component() {}
 	SolidDrawable(geometry::GeometryObject* geometry): SolidDrawable(geometry, &shaders::raycast_program) {}
 	virtual ~SolidDrawable() {}
 
@@ -75,6 +75,8 @@ struct SolidDrawable: public render::DrawableObject {
 		get_transform()->bind(entity);
 		get_layer()->bind(entity);
 		get_uniform()->bind(entity);
+		get_color()->bind(entity);
+		arena::create<shaders::ProgramArgumentObject>(get_program())->bind(entity);
 	}
 	transform::NoRotationTransform transform;
 	layers::ConstLayer layer;

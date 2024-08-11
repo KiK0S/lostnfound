@@ -1,6 +1,5 @@
 #pragma once
 #include "components/geometry_object.hpp"
-#include "components/drawable_object.hpp"
 #include "delaunay-cpp/delaunay.hpp"
 #include "systems/spawning_system.hpp"
 #include <memory>

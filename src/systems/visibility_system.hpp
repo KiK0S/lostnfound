@@ -29,7 +29,7 @@ struct ObstacleMap: public dynamic::DynamicObject, shaders::ShaderUniformsObject
 				glUniform1i(glGetUniformLocation(p, "toFramebuffer"), true);
 				glUniform1i(glGetUniformLocation(p, "toView"), true);
 			});
-			render::display(obj->get_drawable(), &shaders::static_object_program);
+			render::display(obj->get_entity(), &shaders::static_object_program);
 			shaders::run_with_program(&shaders::visibility_program, [&](GLuint p) {
 				glUniform1i(glGetUniformLocation(p, "toFramebuffer"), false);
 				glUniform1i(glGetUniformLocation(p, "toView"), false);

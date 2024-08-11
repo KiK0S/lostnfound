@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <algorithm>
+#include <functional>
 #include "components/component.hpp"
 
 namespace init {

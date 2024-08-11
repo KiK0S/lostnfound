@@ -110,8 +110,8 @@ transform::NoRotationTransform map_button_transform({{0.7, 0.7}, {0.9, 0.8}});
 layers::ConstLayer map_button_layer(5);
 render::ModelMatrix map_button_model_matrix;
 render::TextObject map_button_text("mymap");
+shaders::ProgramArgumentObject map_button_program(&shaders::static_object_program);
 
-render::DummyDrawable map_button_drawable(&shaders::static_object_program);
 
 void init_map_button() {
 	auto map_button_scene = arena::create<scene::SceneObject>("main");
@@ -124,7 +124,7 @@ void init_map_button() {
 						.add(&map_button_model_matrix)
 						.add(&map_button_layer)
 						.add(&color::red)
-						.add(&map_button_drawable)
+						.add(&map_button_program)
 
 						.bind();
 }

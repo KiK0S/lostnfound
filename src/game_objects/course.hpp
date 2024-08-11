@@ -33,11 +33,16 @@ struct Course {
 
 	void add_minimap_entity(geometry::GeometryObject* g, glm::vec2 pos) {
 		auto mini_e = arena::create<entity::Entity>();
-		auto mini_drawable = arena::create<render::SolidDrawable>(g, &shaders::static_object_program);
-		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
-		mini_drawable->transform.translate(glm::vec2{pos.x * 0.1f, pos.y * 0.1f});
-		mini_drawable->color = &color::pink;
-		mini_e->add(mini_drawable);
+		auto transform = arena::create<transform::NoRotationTransform>();
+		transform->scale(glm::vec2(0.1f, 0.1f));
+		transform->translate(glm::vec2{pos.x * 0.1f, pos.y * 0.1f});
+		auto program = arena::create<shaders::ProgramArgumentObject>(&shaders::static_object_program);
+		auto matrix = arena::create<render::ModelMatrix>();
+		mini_e->add(&color::pink);
+		mini_e->add(transform);
+		mini_e->add(matrix);
+		mini_e->add(g);
+		mini_e->add(program);
 		mini_e->bind();
 		auto minimaped = arena::create<minimap::MiniMapEntityPtr>(mini_e);
 		auto e = std::make_unique<entity::Entity>();
@@ -47,12 +52,16 @@ struct Course {
 	}
 	void add_minimap_line(glm::vec2 from, glm::vec2 to, int idx) {
 		auto mini_e = arena::create<entity::Entity>();
-		auto patch = arena::create<geometry::BezierCurve>(std::string("leg-") + std::to_string(idx), std::array<glm::vec2, 4>{from, from, to, to});
-		auto mini_drawable = arena::create<render::SolidDrawable>(patch, &shaders::bezier_program);
-		mini_drawable->transform.scale(glm::vec2(0.1f, 0.1f));
-		mini_drawable->uniforms.add(patch);
-		mini_e->add(mini_drawable);
-		mini_drawable->color = &color::pink;
+		auto g = arena::create<geometry::Curve>(std::string("leg-") + std::to_string(idx), std::vector<glm::vec2>{from, from, to, to});
+		auto transform = arena::create<transform::NoRotationTransform>();
+		transform->scale(glm::vec2(0.1f, 0.1f));
+		auto matrix = arena::create<render::ModelMatrix>();
+		auto program = arena::create<shaders::ProgramArgumentObject>(&shaders::static_object_program);
+		mini_e->add(&color::pink);
+		mini_e->add(transform);
+		mini_e->add(g);
+		mini_e->add(matrix);
+		mini_e->add(program);
 		mini_e->bind();
 		auto minimaped = arena::create<minimap::MiniMapEntityPtr>(mini_e);
 		auto e = std::make_unique<entity::Entity>();

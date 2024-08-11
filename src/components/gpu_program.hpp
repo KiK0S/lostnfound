@@ -11,6 +11,7 @@ namespace shaders {
 
 
 struct ShaderUniformsObject;
+struct ProgramArgumentObject;
 struct Program;
 
 std::vector<Program*> programs;
@@ -35,6 +36,13 @@ struct ShaderUniformsObject: public components::Component {
 	virtual ~ShaderUniformsObject() {}
 
 	virtual void reg_uniforms(GLuint program_id) { }
+};
+
+struct ProgramArgumentObject : public components::Component {
+	ProgramArgumentObject(Program* program): program(program), components::Component() {}
+	virtual ~ProgramArgumentObject() {}
+	virtual Program* get_program() {return program;}
+	Program* program;
 };
 
 

@@ -2,10 +2,10 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "components/drawable_object.hpp"
 #include "components/dynamic_object.hpp"
 #include "components/init_object.hpp"
 #include "components/component.hpp"
+#include "components/layered_object.hpp"
 
 namespace scene {
 
@@ -23,10 +23,6 @@ struct SceneObject : public components::Component {
 
 	}
 	virtual ~SceneObject() {}
-	virtual render::DrawableObject* get_drawable() {
-		entity::Entity* e = get_entity();
-		return e->get<render::DrawableObject>();
-	}
 };
 
 
@@ -39,7 +35,7 @@ void init() {
 init::CallbackOnStart init_scenes(&init, 2);
 
 bool cmp::operator()(SceneObject* a, SceneObject* b) const {
-	return a->get_drawable()->get_layer()->get_layer() < b->get_drawable()->get_layer()->get_layer();
+	return a->get_entity()->get<layers::LayeredObject>()->get_layer() < b->get_entity()->get<layers::LayeredObject>()->get_layer();
 }
 
 }

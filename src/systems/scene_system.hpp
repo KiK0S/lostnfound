@@ -22,8 +22,7 @@ struct Scene: public dynamic::DynamicObject {
 		if (!is_active)
 			return;
 		for (auto* object : scene_objects[get_name()]) {
-			if (object->get_drawable()->hide()) continue;
-			render::display(object->get_drawable(), object->get_drawable()->get_program());
+			render::display(object->get_entity(), object->get_entity()->get<shaders::ProgramArgumentObject>()->get_program());
 		}
 	}
 	void activate() {

@@ -1,6 +1,5 @@
 #pragma once
 #include "components/animated_object.hpp"
-#include "components/drawable_object.hpp"
 #include "components/gpu_program.hpp"
 #include "components/controllable_object.hpp"
 #include "game_objects/camera.hpp"
@@ -14,32 +13,32 @@
 
 namespace sprite {
 
-	struct Sprite : public render::DrawableObject {
+	struct Sprite : public components::Component {
 
 		Sprite(std::string name, glm::vec2 top_left, glm::vec2 bottom_right, int layer):
 		 transform(top_left, bottom_right),
 		 layer(layer),
-		 texture(name) {}
+		 texture(name), components::Component() {}
 		~Sprite() {}
-		virtual geometry::GeometryObject* get_geometry() {
+		geometry::GeometryObject* get_geometry() {
 			return &geometry::quad;
 		}
-		virtual transform::TransformObject* get_transform() {
+		transform::TransformObject* get_transform() {
 			return &transform;
 		}
-		virtual layers::LayeredObject* get_layer() {
+		layers::LayeredObject* get_layer() {
 			return &layer;
 		}
-		virtual color::ColoredObject* get_color() {
+		color::ColoredObject* get_color() {
 			return &color::no_color;
 		}
 		virtual texture::TexturedObject* get_texture() {
 			return &texture;
 		}
-		virtual shaders::ShaderUniformsObject* get_uniform() {
+		shaders::ShaderUniformsObject* get_uniform() {
 			return &model_matrix;
 		}
-		virtual shaders::Program* get_program() {
+		shaders::Program* get_program() {
 			return &shaders::raycast_program;
 		}
 
@@ -49,6 +48,7 @@ namespace sprite {
 			get_layer()->bind(entity);
 			get_texture()->bind(entity);
 			get_uniform()->bind(entity);
+			arena::create<shaders::ProgramArgumentObject>(get_program())->bind(entity);
 		}
 
 		bool hide() {

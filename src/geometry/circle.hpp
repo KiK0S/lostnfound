@@ -101,8 +101,6 @@ struct Circle : public geometry::GeometryObject {
         return "circle";
     }
 
-    void bind(entity::Entity*) {}
-
     int get_size() {
         return 48;
     }

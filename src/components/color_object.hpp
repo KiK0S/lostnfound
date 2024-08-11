@@ -15,7 +15,6 @@ struct ColoredObject: public components::Component {
 	}
 	virtual ~ColoredObject(){}
 	virtual glm::vec4 get_color() = 0;
-	void bind(entity::Entity*) {}
 };
 
 

@@ -115,8 +115,7 @@ entity::Entity* parse_entity(std::istream& in, shaders::Program* program) {
 	e->add(model_matrix);
 	auto translate = arena::create<transform::NoRotationTransform>();
 	e->add(translate);
-	auto drawable = arena::create<render::DummyDrawable>(program);
-	e->add(drawable);
+	e->add(arena::create<shaders::ProgramArgumentObject>(program));
 	e->bind();
 	return e;
 }

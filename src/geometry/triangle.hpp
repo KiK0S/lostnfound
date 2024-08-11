@@ -26,8 +26,6 @@ struct Triangle : public geometry::GeometryObject {
 	virtual std::string get_name() const {
 		return "triangle";
 	}
-	void bind(entity::Entity*) {}
-
 };
 
 Triangle triangle;
